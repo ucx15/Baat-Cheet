@@ -57,16 +57,16 @@ const userLogin = async (req, res) => {
 		if (user) {
 			if (await bcrypt.compare(password, user.password)) {
 				console.log(`INFO: User ${username} loggedin`);
-				res.json({ message: "Successfull login", status: "success" });
+				res.json({ message: "Logged in Successfully!", status: "success" });
 			}
 			else {
 				console.error(`ERROR: Invalid Password for user ${username}`);
-				res.status(401).json({ message: "Invalid password", status: "error" });
+				res.status(401).json({ message: "Invalid Password", status: "error" });
 			}
 		}
 		else {
 			console.error(`ERROR: User ${username} not found`);
-			res.json({ message: "User not found", status: "error" });
+			res.status(404).json({ message: "User not found", status: "error" });
 		}
 	}
 	catch (error) {
