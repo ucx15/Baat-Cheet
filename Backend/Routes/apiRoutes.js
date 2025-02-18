@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 const User = require('../Models/User');
+const userController = require('../Controllers/userController');
 
 
 router.get('/', (req, res) => {
@@ -8,14 +9,8 @@ router.get('/', (req, res) => {
 	res.json({message: "HOLA from API"});
 });
 
-router.get('/login', (req, res) => {
-	console.log('INFO: GET /api/login');
-	res.json({message: "Successfull login", status: "success"});
-});
 
-router.get('/signup', (req, res) => {
-	console.log('INFO: GET /api/signup');
-	res.json({message: "Successfull Signup", status: "success"});
-});
+router.post('/signup', userController.userSignup);
+router.post('/login', userController.userLogin);
 
 module.exports = router;
