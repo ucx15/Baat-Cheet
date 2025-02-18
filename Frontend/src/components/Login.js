@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import bcrypt from "bcryptjs";
+import { Link } from "react-router-dom";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -9,30 +12,25 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Send a POST request to the backend server for authentication
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
+      // Fetch stored hash from backend
+      const response = await axios.post("http://localhost:5000/api/login", {
+        username,
       });
 
-      const data = await response.json();
+      const storedHash = response.data.hashedPassword; // Get stored hashed password
 
-      if (response.status === 200) {
-        // If login is successful, navigate to the chat page
-        navigate("/chat");
+      // Compare entered password with stored hash
+      const isMatch = await bcrypt.compare(password, storedHash);
+
+      if (isMatch) {
+        localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user data
+        navigate("/chat-gallery"); // Redirect to Chat Gallery
       } else {
-        alert(data.message || "Invalid username or password");
+        alert("Invalid credentials!");
       }
     } catch (error) {
-      console.error("Error during login:", error);
-      alert("Something went wrong. Please try again later.");
+      alert("Login failed! Check credentials.");
     }
   };
 
@@ -57,7 +55,7 @@ function Login() {
         <button type="submit">Login</button>
       </form>
       <p>
-        Don't have an account? <Link to="/signup">Sign up here</Link>
+        Doesnt have an account? <Link to="/signup">Signup here</Link>
       </p>
     </div>
   );
