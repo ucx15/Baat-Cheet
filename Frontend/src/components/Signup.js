@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import bcrypt from "bcryptjs";
+
 
 function Signup() {
   const [username, setUsername] = useState("");
@@ -12,27 +12,26 @@ function Signup() {
   const handleSignup = async (e) => {
     e.preventDefault();
 
+    // Check if passwords match
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
 
     try {
-      // Hash password before sending to backend
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      
 
-      // Send hashed password to backend
-      const response = await axios.post("http://localhost:5000/api/signup", {
+      // Send user data to the backend (hashed password)
+      const response = await axios.post("http://localhost:3000/api/signup", {
         username,
-        password: hashedPassword,
+        password,
       });
 
-      alert(response.data.message);
-      navigate("/login");
+      alert(response.data.message); // Show success message
+      navigate("/"); // Redirect to login page
     } catch (error) {
-      console.error("Signup error:", error);
-      alert("Signup failed, please try again!");
+      console.error("Error during signup:", error);
+      alert("Signup failed, please try again!"); // Handle errors
     }
   };
 
@@ -64,11 +63,12 @@ function Signup() {
         <button type="submit">Signup</button>
       </form>
       <p>
-        Already have an account? <Link to="/">Login here</Link>
+        Already have an account? <Link to="/login">Login here</Link>
       </p>
     </div>
   );
 }
 
 export default Signup;
+
 

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import bcrypt from "bcryptjs";
 import { Link } from "react-router-dom";
 
 function Login() {
@@ -13,22 +12,18 @@ function Login() {
     e.preventDefault();
 
     try {
-      // Fetch stored hash from backend
-      const response = await axios.post("http://localhost:5000/api/login", {
+      const response = await axios.post("http://localhost:3000/api/login", {
         username,
+        password, // Send raw password, backend will compare hashes
       });
 
-      const storedHash = response.data.hashedPassword; // Get stored hashed password
-
-      // Compare entered password with stored hash
-      const isMatch = await bcrypt.compare(password, storedHash);
-
-      if (isMatch) {
-        localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user data
-        navigate("/chat-gallery"); // Redirect to Chat Gallery
-      } else {
-        alert("Invalid credentials!");
+      alert(response.data.message);
+      
+      if (response.data.user) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
       }
+      
+      navigate("/chat-gallery"); // Redirect to Chat Gallery
     } catch (error) {
       alert("Login failed! Check credentials.");
     }
@@ -55,7 +50,7 @@ function Login() {
         <button type="submit">Login</button>
       </form>
       <p>
-        Doesnt have an account? <Link to="/signup">Signup here</Link>
+        Don't have an account? <Link to="/signup">Signup here</Link>
       </p>
     </div>
   );
