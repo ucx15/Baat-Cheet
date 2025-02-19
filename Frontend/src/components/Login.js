@@ -14,16 +14,20 @@ function Login() {
     try {
       const response = await axios.post("http://localhost:3000/api/login", {
         username,
-        password, // Send raw password, backend will compare hashes
+        password, 
       });
 
       // alert(response.data.message);
       
-      if (response.data.user) {
-        sessionStorage.setItem("user", JSON.stringify(response.data.user));
-        console.log("Stored Username:", sessionStorage.getItem("user")); // Debugging log
+      // if (response.data.user) {
 
-      }
+        localStorage.setItem("username", username);
+        console.log("Stored Username:", localStorage.getItem("username")); // Debugging log
+
+      // }
+
+      
+      
       
       navigate("/chat-gallery"); // Redirect to Chat Gallery
     } catch (error) {

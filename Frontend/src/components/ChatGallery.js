@@ -20,11 +20,13 @@ function ChatGallery() {
       socket.connect();
     }
 
-    const storedUsername = sessionStorage.getItem("username");
+    const storedUsername = localStorage.getItem("username");
     console.log("Stored Username:", storedUsername);
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
+    setUsername(storedUsername);
+    
+    // if (storedUsername) {
+    // setUsername(storedUsername);
+    // }
 
     return () => {
       socket.disconnect(); // Disconnect on component unmount
