@@ -41,7 +41,7 @@ const userSignup = async (req, res) => {
 
 
 const userLogin = async (req, res) => {
-	console.log('INFO: GET /api/login');
+	console.log('GET: /api/login');
 
 	try {
 		const { username, password } = req.body;
@@ -56,8 +56,8 @@ const userLogin = async (req, res) => {
 
 		if (user) {
 			if (await bcrypt.compare(password, user.password)) {
-				console.log(`INFO: User ${username} loggedin`);
-				res.json({ message: "Logged in Successfully!", status: "success" });
+				console.log(`INFO:  '${username}' Loggedin`);
+				res.json({ message: "Logged in Successfully!", status: "success", username: username });
 			}
 			else {
 				console.error(`ERROR: Invalid Password for user ${username}`);
