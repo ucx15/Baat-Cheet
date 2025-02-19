@@ -1,41 +1,55 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import { useParams } from "react-router-dom";
 
 function ChatRoom() {
-  const { roomID } = useParams(); // Get room ID from the URL
+  const { roomID } = useParams(); // Get room ID from URL
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const socket = io("http://localhost:3000"); // Connect to the socket server
+  const socketRef = useRef(null); // Store socket instance in useRef
+
+  // Retrieve username from local storage
+  const storedUser = JSON.parse(sessionStorage.getItem("user"));
+  const username = storedUser ? storedUser.username : "Guest";
 
   useEffect(() => {
-    // Fetch all previous messages for the room
-    axios.get(`http://localhost:3000/api/messages/${roomID}`).then((response) => {
-      setMessages(response.data);
+    if (!socketRef.current) {
+      socketRef.current = io("http://localhost:3000"); // Initialize socket connection
+    }
+
+    const socket = socketRef.current;
+
+    socket.emit("join_room", roomID);
+
+    socket.on("room_messages", (messages) => {
+      setMessages(messages);
     });
 
-    socket.emit("join_room", roomID); // Emit join room event
+    socket.on("receive_message", (newMessage) => {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
 
     return () => {
-      socket.emit("leave_room", roomID); // Emit leave room when component unmounts
+      socket.emit("leave_room", roomID);
+      socket.disconnect(); // Ensure socket disconnects on unmount
+      socketRef.current = null; // Reset socket reference
     };
   }, [roomID]);
 
   const sendMessage = () => {
-    if (newMessage) {
-      socket.emit("send_message", { roomID, message: newMessage }); // Send the message to the server
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { username: "You", message: newMessage }, // Add the message to the UI
-      ]);
-      setNewMessage(""); // Clear the input
+    if (newMessage.trim()) {
+      socketRef.current.emit("send_message", { roomID, username, message: newMessage });
+
+      // Optimistically update UI
+      setMessages((prevMessages) => [...prevMessages, { username, message: newMessage }]);
+      setNewMessage("");
     }
   };
 
   return (
     <div className="chat-room">
       <h2>Room: {roomID}</h2>
+      <h3>Welcome, {username}</h3>
       <div className="messages">
         {messages.map((msg, index) => (
           <div key={index} className="message">
@@ -57,4 +71,5 @@ function ChatRoom() {
 }
 
 export default ChatRoom;
+
 

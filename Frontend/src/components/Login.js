@@ -17,10 +17,12 @@ function Login() {
         password, // Send raw password, backend will compare hashes
       });
 
-      alert(response.data.message);
+      // alert(response.data.message);
       
       if (response.data.user) {
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+        sessionStorage.setItem("user", JSON.stringify(response.data.user));
+        console.log("Stored Username:", sessionStorage.getItem("user")); // Debugging log
+
       }
       
       navigate("/chat-gallery"); // Redirect to Chat Gallery
