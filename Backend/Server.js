@@ -40,12 +40,12 @@ app.use('/', defaultRoutes);
 
 // Socket.io Server
 io.on('connection', (socket) => {
-	console.log('INFO: A user connected:', socket.id);
+	console.log(`WS:\tUser '${socket.id}' connected`);
 
 	// Join a room
 	socket.on('join_room', async (roomID) => {
 		socket.join(roomID);
-		console.log(`INFO: User joined room ${roomID}`);
+		console.log(`WS:\tUser joined room '${roomID}'`);
 
 		// Fetch and send previous messages
 		const messages = await RoomModel.getRoomMessages(roomID);
@@ -58,18 +58,18 @@ io.on('connection', (socket) => {
 		await RoomModel.addMessageToRoom(roomID, username, message);
 
 		// Broadcast the message to everyone in the room
-		io.to(roomID).emit('receive_message', { username, message });
+		socket.to(roomID).emit('receive_message', { username, message });
 	});
 
 	// Handle disconnection
 	socket.on('disconnect', () => {
-		console.log('INFO: A user disconnected:', socket.id);
+		console.log(`WS:\tUser '${socket.id}' disconnected`);
 	});
 });
 
 mongoose.connect(MONGO_URI)
 	.then(() => {
-		console.log('INFO: Connected to Database');
+		console.log('DB: Connected to MongoDB Atlas');
 		server.listen(PORT, () => {
 			console.log(`Backend running @ http://${HOST}:${PORT}`);
 		});
