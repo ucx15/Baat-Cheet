@@ -6,7 +6,7 @@ const roomController = require('../Controllers/roomController');
 
 
 router.get('/', (req, res) => {
-	console.log('INFO: GET /api/');
+	console.log("GET: /api/");
 	res.json({message: "HOLA from API"});
 });
 

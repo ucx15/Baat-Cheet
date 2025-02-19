@@ -7,7 +7,7 @@ const SALT_ROUNDS =  Number(process.env.SALT_ROUNDS);
 
 
 const userSignup = async (req, res) => {
-	console.log('INFO: GET /api/signup');
+	console.log('POST: /api/signup');
 
 	try {
 		const { username, password } = req.body;
@@ -20,7 +20,7 @@ const userSignup = async (req, res) => {
 		const user = await UserModel.getUser(username);
 		// Check if user laready exists
 		if (user) {
-			console.log(`INFO: User ${username} already exists in the database`);
+			console.error(`ERROR:\tUser ${username} already exists in the database`);
 			res.status(409).json({ message: "User Already exists", status: "error" });
 		}
 
@@ -41,7 +41,7 @@ const userSignup = async (req, res) => {
 
 
 const userLogin = async (req, res) => {
-	console.log('GET: /api/login');
+	console.log('POST: /api/login');
 
 	try {
 		const { username, password } = req.body;
@@ -56,7 +56,7 @@ const userLogin = async (req, res) => {
 
 		if (user) {
 			if (await bcrypt.compare(password, user.password)) {
-				console.log(`INFO:  '${username}' Loggedin`);
+				console.log(`\t\t'${username}' Loggedin`);
 				res.json({ message: "Logged in Successfully!", status: "success", username: username });
 			}
 			else {
