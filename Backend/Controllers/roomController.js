@@ -1,4 +1,6 @@
 const RoomModel = require("../Models/Room");
+const UserModel = require("../Models/User");
+
 
 const createRoom = async (req, res) => {
 	console.log("POST: /api/chat/create");
@@ -12,7 +14,15 @@ const createRoom = async (req, res) => {
 		}
 
 		await RoomModel.createRoom(roomID, username);
-		console.log(`\t\tUser ${username} created room ${roomID}`);
+		if (!await RoomModel.findRoom(roomID)) {
+			// Failed to create a Room
+			console.error(`ERROR:\tRoom ${roomID} not found`);
+			return res.status(404).json({ message: "Room not found", status: "error" });
+		}
+
+		await UserModel.addRoom(username, roomID);
+
+		console.log(`\tUser ${username} created room ${roomID}`);
 		res.json({ message: "Room created successfully", status: "success" });
 	}
 	catch (error) {
@@ -36,6 +46,15 @@ const joinRoom = async (req, res) => {
 		if (!room) {
 			return res.status(404).json({ message: "Room not found", status: "error" });
 		}
+
+		const userRooms = await UserModel.getRooms(username);
+		if (userRooms.includes(roomID)) {
+			console.error(`WARN:\tUser "${username}" already in room`);
+			return res.json({ message: "Joined room successfully", status: "success" });
+		}
+
+		await UserModel.addRoom(username, roomID);
+
 		console.log(`\t'${username}' joined room ${roomID}`);
 		res.json({ message: "Joined room successfully", status: "success" });
 	} catch (error) {

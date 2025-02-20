@@ -41,4 +41,9 @@ const addMessageToRoom = async (roomID, username, message) => {
   );
 };
 
-module.exports = { Room, createRoom, joinRoom, getRoomMessages, addMessageToRoom };
+const findRoom = async (roomID) => {
+  return await Room.findOne({ roomID });
+};
+
+
+module.exports = { Room, createRoom, joinRoom, getRoomMessages, addMessageToRoom, findRoom };

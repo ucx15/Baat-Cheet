@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  rooms: [{ type: String, ref: "Room" }],
 });
 
 
@@ -19,4 +20,16 @@ const getUser = async (username) => {
 	return await User.findOne({ username });
 };
 
-module.exports = {User, createUser, getUser };
+
+const addRoom = async (username, roomID) => {
+  const user = await User.findOne({username});
+  user.rooms.push(roomID);
+  return await user.save();
+}
+
+const getRooms = async (username) => {
+  const user = await User.findOne({username});
+  return user.rooms;
+}
+
+module.exports = {User, createUser, getUser , addRoom, getRooms};
