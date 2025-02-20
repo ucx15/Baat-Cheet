@@ -56,7 +56,7 @@ const userLogin = async (req, res) => {
 
 		if (user) {
 			if (await bcrypt.compare(password, user.password)) {
-				console.log(`\t\t'${username}' Loggedin`);
+				console.log(`\t'${username}' Logged in`);
 				res.json({ message: "Logged in Successfully!", status: "success", username: username });
 			}
 			else {

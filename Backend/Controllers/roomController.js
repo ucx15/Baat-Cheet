@@ -36,7 +36,7 @@ const joinRoom = async (req, res) => {
 		if (!room) {
 			return res.status(404).json({ message: "Room not found", status: "error" });
 		}
-		console.log(`\t\t'${username}' joined room ${roomID}`);
+		console.log(`\t'${username}' joined room ${roomID}`);
 		res.json({ message: "Joined room successfully", status: "success" });
 	} catch (error) {
 		console.error("ERROR:\tCannot join room:", error);

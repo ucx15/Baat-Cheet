@@ -11,34 +11,50 @@ const defaultRoutes = require("./Routes/defaultRoutes");
 
 const RoomModel = require("./Models/Room.js");
 
-
+// Environment Variables
 dotenv.config()
-const PORT = process.env.PORT || 3000
-const HOST = process.env.HOST
-const MONGO_URI = process.env.MONGO_URI
+const PORT = process.env.PORT;
+const HOST = process.env.HOST;
+const MONGO_URI = process.env.MONGO_URI;
 
-const app = express()
-const server = http.createServer(app);
+const CORS_CONFIG = {
+	origin: '*',
+	methods: ['GET', 'POST'],
+	credentials: true
+};
 
-const io = new Server(server, {
-	cors: {
-		origin: '*',
-		methods: ['GET', 'POST'],
-		credentials: true
-	}
+
+// Database Connection
+mongoose.connect(MONGO_URI)
+.then(() => {
+	console.log('DB: Connected to MongoDB Atlas');
+})
+.catch((err) => {
+	console.error('ERROR: Cannot connect to Database:', err);
 });
 
 
-app.use(cors({ origin: '*', credentials: true }))
-app.use(express.json())
-
+// Express Setup
+const app = express();
+app.use(cors(CORS_CONFIG));
+app.use(express.json());
 
 // Routing
 app.use('/api', apiRoutes);
 app.use('/', defaultRoutes);
 
 
+// HTTP Sever
+const server = http.createServer(app);
+
+server.listen(PORT, () => {
+	console.log(`Backend running @ http://${HOST}:${PORT}`);
+});
+
+
 // Socket.io Server
+const io = new Server(server, { cors: CORS_CONFIG });
+
 io.on('connection', (socket) => {
 	console.log(`WS:\tUser '${socket.id}' connected`);
 
@@ -66,14 +82,3 @@ io.on('connection', (socket) => {
 		console.log(`WS:\tUser '${socket.id}' disconnected`);
 	});
 });
-
-mongoose.connect(MONGO_URI)
-	.then(() => {
-		console.log('DB: Connected to MongoDB Atlas');
-		server.listen(PORT, () => {
-			console.log(`Backend running @ http://${HOST}:${PORT}`);
-		});
-	})
-	.catch((err) => {
-		console.error('ERROR: Cannot connect to Database:', err);
-	});
