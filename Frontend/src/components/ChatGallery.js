@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 // import io from "socket.io-client";
 
 function ChatGallery() {
@@ -7,7 +8,7 @@ function ChatGallery() {
   const [roomID, setRoomID] = useState("");
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
-  const socketRef = useRef(null); // useRef ensures a single connection
+  // const socketRef = useRef(null); // useRef ensures a single connection
 
   useEffect(() => {
     // if (!socketRef.current) {
@@ -34,15 +35,45 @@ function ChatGallery() {
     // };
   }, []);
 
-  const CreateUniqueID = () => {
-    const uniqueID = Math.random().toString(36).substr(2, 9);
-    setRoomID(uniqueID);
+  
+   
+  const CreateUniqueID = async () => {
+   const uniqueID = Math.random().toString(36).substr(2, 9);
+   setRoomID(uniqueID);
+
+  
+    try{
+    const response = await axios.post("http://localhost:3000/api/chat/create", {
+      roomID: uniqueID, 
+      username: username,
+    });
+    console.log("Room created successfully:", roomID);
+  }
+
+  catch (error) {
+    console.error("Error during sending uniqueId to backend:", error);
+    alert("Signup failed, please try again!"); // Handle errors
+  }
+  
     // socketRef.current.emit("join_room", uniqueID);
-    console.log("Room created:", uniqueID);
+    console.log("Room created:", roomID);
   };
 
-  const JoinRoom = () => {
-    if (roomID) {
+  const JoinRoom = async () => {
+
+    if (true) {
+      try{
+        const response = await axios.post("http://localhost:3000/api/chat/join", {
+          roomID:  roomID, 
+          username: username,
+        });
+        console.log("sent successfully");   
+      }
+      catch (error) {
+        console.error("Error during sending uniqueId to backend:", error);
+        alert("Signup failed, please try again!"); // Handle errors
+      }
+      
       // socketRef.current.emit("join_room", roomID);
       navigate(`/chat/${roomID}`);
     } else {
