@@ -1,21 +1,33 @@
 import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
+import axios from "axios";
 import { useParams } from "react-router-dom";
 
 function ChatRoom() {
-  const { roomID } = useParams(); // Get room ID from URL
+  const { roomID } = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [username, setUsername] = useState("");
-  const socketRef = useRef(null); // Store socket instance in useRef
+  const socketRef = useRef(null);
 
-  // Retrieve username from local storage once when the component mounts
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
       setUsername(storedUsername);
     }
-  }, []);
+
+    // Fetch old messages from the backend
+    const fetchOldMessages = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/getMessages/${roomID}`);
+        setMessages(response.data);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+
+    fetchOldMessages();
+  }, [roomID]);
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -23,7 +35,6 @@ function ChatRoom() {
     }
 
     const socket = socketRef.current;
-
     socket.emit("join_room", roomID);
 
     socket.on("room_messages", (messages) => {
@@ -44,9 +55,15 @@ function ChatRoom() {
   const sendMessage = () => {
     if (newMessage.trim()) {
       const messageData = { roomID, username, message: newMessage };
+
       socketRef.current.emit("send_message", messageData);
-      setMessages((prevMessages) => [...prevMessages, messageData]); // Show sender's message instantly
+      setMessages((prevMessages) => [...prevMessages, messageData]);
       setNewMessage("");
+
+      // Store message in DB
+      axios.post("http://localhost:3000/api/saveMessage", messageData).catch((error) => {
+        console.error("Error saving message:", error);
+      });
     }
   };
 

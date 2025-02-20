@@ -52,7 +52,7 @@ const getRoomUsers = async (roomID) => {
 
 const getRoomUsernames = async (roomID) => {
   const room = await Room.findOne({ roomID });
-  return room.users;
+  return room ? room.users : [];
 }
 
 module.exports = { Room, createRoom, joinRoom, getRoomMessages, addMessageToRoom, findRoom, getRoomUsers, getRoomUsernames};

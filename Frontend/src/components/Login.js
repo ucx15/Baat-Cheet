@@ -3,9 +3,15 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+import {Icon} from 'react-icons-kit';
+import {eyeOff} from 'react-icons-kit/feather/eyeOff';
+import {eye} from 'react-icons-kit/feather/eye'
+
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [type, setType] = useState('password');
+  const [icon, setIcon] = useState(eyeOff);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -35,6 +41,16 @@ function Login() {
     }
   };
 
+  const handleToggle = () => {
+    if (type==='password'){
+       setIcon(eye);
+       setType('text')
+    } else {
+       setIcon(eyeOff)
+       setType('password')
+    }
+ }
+
   return (
     <div className="auth-container">
       <h2>Login</h2>
@@ -47,14 +63,20 @@ function Login() {
           required
         />
         <input
-          type="password"
+          type={type}
           placeholder="Enter password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        <span class="flex justify-around items-center" onClick={handleToggle}>
+              <Icon class="absolute mr-10" icon={icon} size={25}/>
+          </span>
+        
+
         <button type="submit">Login</button>
       </form>
+      
       <p>
         Don't have an account? <Link to="/signup">Signup here</Link>
       </p>

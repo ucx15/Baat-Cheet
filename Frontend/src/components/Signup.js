@@ -31,7 +31,7 @@ function Signup() {
       navigate("/"); // Redirect to login page
     } catch (error) {
       console.error("Error during signup:", error);
-      alert("Signup failed, please try again!"); // Handle errors
+      // alert("Error:",error); // Handle errors
     }
   };
 
