@@ -13,6 +13,8 @@ router.get('/', (req, res) => {
 
 router.post('/signup', userController.userSignup);
 router.post('/login', userController.userLogin);
+// router.post('/logout', userController.userLogout);
+router.post('/fetch-user-rooms', userController.userFetchRoomsWithDetails);
 
 router.post('/chat/create', roomController.createRoom);
 router.post('/chat/join', roomController.joinRoom);

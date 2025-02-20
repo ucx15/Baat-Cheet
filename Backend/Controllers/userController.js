@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");
-const UserModel = require("../Models/User");
 require('dotenv').config();
+
+const UserModel = require("../Models/User");
+const RoomModel = require("../Models/Room");
 
 
 const SALT_ROUNDS =  Number(process.env.SALT_ROUNDS);
@@ -39,7 +41,6 @@ const userSignup = async (req, res) => {
 	}
 };
 
-
 const userLogin = async (req, res) => {
 	console.log('POST: /api/login');
 
@@ -75,5 +76,39 @@ const userLogin = async (req, res) => {
 	}
 };
 
+const userFetchRoomsWithDetails = async (req, res) => {
+	console.log('POST: /api/fetch-rooms');
 
-module.exports = { userSignup, userLogin };
+	try {
+		const { username } = req.body;
+
+		if (!username) {
+			console.error('ERROR: Username not provided');
+			res.status(400).json({ message: "Username not provided", status: "error" });
+			return;
+		}
+
+		const roomsIDs = await UserModel.getUserRoomnames(username);
+		if (!roomsIDs) {
+			console.error(`WARN: User ${username} has no rooms yet!`);
+			res.json({ message: "User has no rooms yet!", status: "success" });
+			return;
+		}
+
+		let roomIDandUsers = {};
+		for (const roomID of roomsIDs) {
+			var users = await RoomModel.getRoomUsernames(roomID);
+			roomIDandUsers[roomID] = users;
+		}
+
+		console.log(`\t'${username}' fetched its rooms`);
+		res.json({ rooms: roomIDandUsers, status: "success" });
+	}
+	catch (error) {
+		console.error('ERROR: Cannot fetch rooms:', error);
+		res.status(500).json({ error: "Database error" });
+	}
+};
+
+
+module.exports = { userSignup, userLogin, userFetchRoomsWithDetails };

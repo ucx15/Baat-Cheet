@@ -27,9 +27,10 @@ const addRoom = async (username, roomID) => {
   return await user.save();
 }
 
-const getRooms = async (username) => {
+const getUserRoomnames = async (username) => {
   const user = await User.findOne({username});
   return user.rooms;
 }
 
-module.exports = {User, createUser, getUser , addRoom, getRooms};
+
+module.exports = {User, createUser, getUser , addRoom, getUserRoomnames};

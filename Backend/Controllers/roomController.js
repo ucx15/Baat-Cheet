@@ -57,10 +57,12 @@ const joinRoom = async (req, res) => {
 
 		console.log(`\t'${username}' joined room ${roomID}`);
 		res.json({ message: "Joined room successfully", status: "success" });
-	} catch (error) {
+	}
+	catch (error) {
 		console.error("ERROR:\tCannot join room:", error);
 		res.status(500).json({ error: "Database error" });
 	}
 };
+
 
 module.exports = { createRoom, joinRoom };

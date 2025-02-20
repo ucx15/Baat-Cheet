@@ -45,5 +45,14 @@ const findRoom = async (roomID) => {
   return await Room.findOne({ roomID });
 };
 
+const getRoomUsers = async (roomID) => {
+  const room = await Room.findOne({ roomID });
+  return room ? room.users : [];
+}
 
-module.exports = { Room, createRoom, joinRoom, getRoomMessages, addMessageToRoom, findRoom };
+const getRoomUsernames = async (roomID) => {
+  const room = await Room.findOne({ roomID });
+  return room.users;
+}
+
+module.exports = { Room, createRoom, joinRoom, getRoomMessages, addMessageToRoom, findRoom, getRoomUsers, getRoomUsernames};
