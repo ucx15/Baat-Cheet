@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import io from "socket.io-client";
+// import io from "socket.io-client";
 
 function ChatGallery() {
   const [chats, setChats] = useState([]);
@@ -10,15 +10,15 @@ function ChatGallery() {
   const socketRef = useRef(null); // useRef ensures a single connection
 
   useEffect(() => {
-    if (!socketRef.current) {
-      socketRef.current = io("http://localhost:3000", { autoConnect: false }); // Prevent auto connection
-    }
-    const socket = socketRef.current;
+    // if (!socketRef.current) {
+    //   socketRef.current = io("http://localhost:3000", { autoConnect: false }); // Prevent auto connection
+    // }
+    // const socket = socketRef.current;
 
     // Connect the socket manually only once
-    if (!socket.connected) {
-      socket.connect();
-    }
+    // if (!socket.connected) {
+    //   socket.connect();
+    // }
 
     const storedUsername = localStorage.getItem("username");
     console.log("Stored Username:", storedUsername);
@@ -28,22 +28,22 @@ function ChatGallery() {
     // setUsername(storedUsername);
     // }
 
-    return () => {
-      socket.disconnect(); // Disconnect on component unmount
-      socketRef.current = null;
-    };
+    // return () => {
+    //   socket.disconnect(); // Disconnect on component unmount
+    //   socketRef.current = null;
+    // };
   }, []);
 
   const CreateUniqueID = () => {
     const uniqueID = Math.random().toString(36).substr(2, 9);
     setRoomID(uniqueID);
-    socketRef.current.emit("join_room", uniqueID);
+    // socketRef.current.emit("join_room", uniqueID);
     console.log("Room created:", uniqueID);
   };
 
   const JoinRoom = () => {
     if (roomID) {
-      socketRef.current.emit("join_room", roomID);
+      // socketRef.current.emit("join_room", roomID);
       navigate(`/chat/${roomID}`);
     } else {
       alert("Please enter a room ID to join.");

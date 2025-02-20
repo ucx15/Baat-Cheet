@@ -12,11 +12,10 @@ function ChatRoom() {
   // Retrieve username from local storage once when the component mounts
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
-    console.log("Stored Username:", storedUsername);
     if (storedUsername) {
       setUsername(storedUsername);
     }
-  }, []); // Empty dependency array ensures it runs only on mount
+  }, []);
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -37,31 +36,36 @@ function ChatRoom() {
 
     return () => {
       socket.emit("leave_room", roomID);
-      socket.disconnect(); // Ensure socket disconnects on unmount
-      socketRef.current = null; // Reset socket reference
+      socket.disconnect();
+      socketRef.current = null;
     };
   }, [roomID]);
 
-  
-    const sendMessage = () => {
-      if (newMessage.trim()) {
-        socketRef.current.emit("send_message", { roomID, username, message: newMessage });
-        setNewMessage(""); // Clear input after sending
-      }
-    };
-    
+  const sendMessage = () => {
+    if (newMessage.trim()) {
+      const messageData = { roomID, username, message: newMessage };
+      socketRef.current.emit("send_message", messageData);
+      setMessages((prevMessages) => [...prevMessages, messageData]); // Show sender's message instantly
+      setNewMessage("");
+    }
+  };
 
   return (
     <div className="chat-room">
       <h2>Room: {roomID}</h2>
       <h3>Welcome, {username ? username : "Guest"}</h3>
+
       <div className="messages">
         {messages.map((msg, index) => (
-          <div key={index} className="message">
+          <div
+            key={index}
+            className={`message ${msg.username === username ? "my-message" : "other-message"}`}
+          >
             <strong>{msg.username}:</strong> {msg.message}
           </div>
         ))}
       </div>
+
       <div className="send-message">
         <input
           type="text"
@@ -76,5 +80,3 @@ function ChatRoom() {
 }
 
 export default ChatRoom;
-
-
