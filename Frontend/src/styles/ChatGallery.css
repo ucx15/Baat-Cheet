@@ -1,25 +1,78 @@
 /* Chat Gallery Container */
 .chat-gallery {
     width: 100%;
+    max-width: 600px;
     margin: 50px auto;
-    padding: 15px;
+    padding: 20px;
     background: #111b21; /* WhatsApp Dark Theme */
     color: #e9edef;
     border-radius: 12px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
     font-family: "Arial", sans-serif;
     overflow: hidden;
+    text-align: center;
+    height: 100%;
 }
 
 /* Header */
 .chat-gallery h2 {
-    text-align: center;
     font-size: 22px;
     margin-bottom: 15px;
     color: #00a884; /* WhatsApp Green */
 }
 
-/* Chat Room List */
+/* Create Room & Join Room Section */
+.chat-gallery button {
+    background: #00a884;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+    font-size: 16px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.chat-gallery button:hover {
+    background: #00775e;
+}
+
+/* Room ID Display */
+.chat-gallery .room-id {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #00ffb3;
+}
+
+/* Join Room Section */
+.chat-gallery .join-room {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.chat-gallery input {
+    padding: 10px;
+    border: none;
+    border-radius: 25px;
+    background: #1e2c35;
+    color: white;
+    text-align: center;
+    width: calc(100% - 130px);
+    max-width: 300px;
+}
+
+.chat-gallery .join-room button {
+    flex-shrink: 0;
+    width: 120px;
+}
+
+/* Chat List Container */
 .chat-gallery .chat-list {
     margin-top: 15px;
     max-height: 320px;
@@ -30,7 +83,7 @@
 }
 
 /* Individual Chat Room */
-.chat-gallery .chat-room-preview {
+.chat-gallery .chat-room {
     display: flex;
     align-items: center;
     background: #1e2c35;
@@ -39,14 +92,15 @@
     border-radius: 10px;
     cursor: pointer;
     transition: 0.3s ease;
+    text-align: center;
 }
 
-.chat-gallery .chat-room-preview:hover {
+.chat-gallery .chat-room:hover {
     background: #273740;
 }
 
-/* Chat Room Text */
-.chat-gallery .chat-room-preview a {
+/* Chat Room Links */
+.chat-gallery .chat-room a {
     color: #00a884;
     text-decoration: none;
     font-weight: bold;
@@ -54,46 +108,14 @@
     font-size: 16px;
 }
 
-.chat-gallery .chat-room-preview a:hover {
+.chat-gallery .chat-room a:hover {
     text-decoration: underline;
 }
 
-/* Buttons inside ChatGallery */
-.chat-gallery button {
-    background: #00a884;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 25px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
-    display: block;
-    width: 100%;
-    transition: 0.3s ease;
-}
-
-.chat-gallery button:hover {
-    background: #00775e;
-}
-
-/* Input Fields inside ChatGallery */
-.chat-gallery input {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 25px;
-    background: #1e2c35;
-    color: white;
-    margin-top: 10px;
+/* No Chats Available Message */
+.chat-gallery .no-chats {
     text-align: center;
-}
-
-/* Active Chat Room */
-.chat-gallery .chat-room {
-    background: #2a3942;
-    padding: 10px;
-    border-radius: 10px;
-    margin-top: 10px;
-    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #ccc;
 }

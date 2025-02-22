@@ -2,18 +2,23 @@ import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { FaEdit } from 'react-icons/fa'; // Example using Font Awesome
-// import "../styles/ChatRoom.css";
+import { FaEdit } from "react-icons/fa"; // Example using Font Awesome
+import "../styles/ChatRoom.css";
 
 function ChatRoom() {
-  const {roomID , setroomID} = useParams();
+  const { roomID } = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [username, setUsername] = useState("");
   const [editRoomId, seteditRoomId] = useState("");
   const [IsEditing, setIsEditing] = useState(false);
-  
+  const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
+
+  // Scroll to Bottom Function
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -26,6 +31,7 @@ function ChatRoom() {
       try {
         const response = await axios.get(`http://localhost:3000/api/getMessages/${roomID}`);
         setMessages(response.data);
+        scrollToBottom(); // Scroll after fetching messages
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
@@ -44,10 +50,12 @@ function ChatRoom() {
 
     socket.on("room_messages", (messages) => {
       setMessages(messages);
+      scrollToBottom();
     });
 
     socket.on("receive_message", (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
+      scrollToBottom();
     });
 
     return () => {
@@ -69,23 +77,16 @@ function ChatRoom() {
       axios.post("http://localhost:3000/api/saveMessage", messageData).catch((error) => {
         console.error("Error saving message:", error);
       });
+
+      scrollToBottom();
     }
   };
 
   const handleEditField = () => {
-    if(IsEditing === true){
-      setIsEditing(false);
-    }
-    else{
-      setIsEditing(true);
-      <button onClick={changeRoomId}>Save</button>
-    }
+    setIsEditing(!IsEditing);
   };
 
   const changeRoomId = async () => {
-
-    seteditRoomId(editRoomId);
-
     try {
       await axios.post("http://localhost:3000/api/chat/editedRoomId", {
         roomID: roomID,
@@ -93,51 +94,34 @@ function ChatRoom() {
       });
       alert("Room name updated successfully");
       setIsEditing(false);
-      console.log("Room created successfully:", editRoomId);
+      console.log("Room updated:", editRoomId);
     } catch (error) {
-      alert("Error updating room , Try after some time");
+      alert("Error updating room, try again later.");
       setIsEditing(false);
       console.error("Error updating room:", error);
-      
     }
-    
-
-
   };
-
-  
 
   return (
     <div className="chat-room">
-      <h2>Room: {roomID} 
+      <h2>
+        Room: {roomID}
         {IsEditing ? (
           <>
-          <input
-          type="Edit Room Name"
-          value={editRoomId}
-          onChange={(e) => seteditRoomId(e.target.value)}
-        
-          />
-          <button onClick={() => { 
-            changeRoomId(); 
-            
-          }}>Save</button> 
+            <input type="text" value={editRoomId} onChange={(e) => seteditRoomId(e.target.value)} />
+            <button onClick={changeRoomId}>Save</button>
           </>
-         ) : (null)}
-         
-         
+        ) : null}
 
-          <button onClick={(handleEditField)}>
-           <FaEdit/>
-          </button>
-
+        <button onClick={handleEditField}>
+          <FaEdit />
+        </button>
       </h2>
 
-          
+      <h3>Welcome, {username ? username : "Guest"}</h3>
 
-          <h3>Welcome, {username ? username : "Guest"}</h3>
-
-          <div className="messages">
+      {/* Messages Container */}
+      <div className="messages">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -146,21 +130,28 @@ function ChatRoom() {
             <strong>{msg.username}:</strong> {msg.message}
           </div>
         ))}
-          </div>
+        <div ref={messagesEndRef} />
+      </div>
 
-          <div className="send-message">
+      {/* Message Input & Send Button */}
+      <div className="send-message">
         <input
           type="text"
           placeholder="Type your message"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault(); // Prevent default form submission
+              sendMessage();
+            }
+          }}
         />
         <button onClick={sendMessage}>Send</button>
-          </div>
+      </div>
     </div>
   );
 }
 
-
-
 export default ChatRoom;
+

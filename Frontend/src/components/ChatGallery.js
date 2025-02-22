@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-// import "../styles/ChatGallery.css";
+import "../styles/ChatGallery.css";
 
 function ChatGallery() {
   const [chats, setChats] = useState({}); // Store rooms as an object
@@ -94,7 +94,7 @@ function ChatGallery() {
       </div>
     )}
 
-    <div>
+    <div className="join-room">
       <input
         type="text"
         placeholder="Enter Room ID"

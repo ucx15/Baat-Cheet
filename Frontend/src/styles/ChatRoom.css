@@ -1,6 +1,8 @@
-/* Chat Room Specific Styles */
+/* Scoped Chat Room Specific Styles */
 .chat-room {
     width: 100%;
+    max-width: 600px;
+    margin: 50px auto;
     padding: 15px;
     background: #202c33;
     color: white;
@@ -32,9 +34,9 @@
     color: #00a884;
 }
 
-.messages {
+.chat-room .messages {
     flex-grow: 1;
-    min-height: 100vh;
+    max-height: 400px;
     overflow-y: auto;
     padding: 10px;
     margin-top: 15px;
@@ -43,7 +45,7 @@
     box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-.message {
+.chat-room .message {
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 10px;
@@ -51,21 +53,59 @@
     word-wrap: break-word;
 }
 
-.my-message {
+.chat-room .my-message {
     background: #005c4b;
     align-self: flex-end;
     text-align: right;
     color: white;
 }
 
-.other-message {
+.chat-room .other-message {
     background: #2a3942;
     align-self: flex-start;
 }
 
-.send-message {
+.chat-room .send-message {
     display: flex;
     margin-top: 15px;
+}
+
+.chat-room .send-message input {
+    flex-grow: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 25px;
+    background: #1e2c35;
+    color: white;
+}
+
+.chat-room .send-message button {
+    background: #00a884;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.chat-room .send-message button:hover {
+    background: #00775e;
+}
+
+.send-message {
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 600px;
+    background: #121b22;
+    padding: 10px;
+    border-radius: 25px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .send-message input {
@@ -75,6 +115,7 @@
     border-radius: 25px;
     background: #1e2c35;
     color: white;
+    outline: none;
 }
 
 .send-message button {
@@ -86,6 +127,7 @@
     font-weight: bold;
     cursor: pointer;
     margin-left: 10px;
+    white-space: nowrap;
 }
 
 .send-message button:hover {
