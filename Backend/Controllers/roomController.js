@@ -47,7 +47,7 @@ const joinRoom = async (req, res) => {
 			return res.status(404).json({ message: "Room not found", status: "error" });
 		}
 
-		const userRooms = await UserModel.getUserRoomnames(username);
+		const userRooms = await UserModel.getUserRoomIDs(username);
 		if (userRooms.includes(roomID)) {
 			console.error(`WARN:\tUser "${username}" already in room`);
 			return res.json({ message: "Joined room successfully", status: "success" });

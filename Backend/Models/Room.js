@@ -59,6 +59,7 @@ const getRoomNames = async () => {
 // return Roomname by Room ID
 const getRoomName = async (roomID) => {
   const room = await Room.findOne({ roomID });
+  console.log("room.roomName:", room.roomName);
   return room.roomName;
 };
 

@@ -88,21 +88,20 @@ const userFetchRoomsWithDetails = async (req, res) => {
 			return;
 		}
 
-		const roomsIDs = await UserModel.getUserRooms(username);
+		const roomsIDs = await UserModel.getUserRoomIDs(username);
 		if (!roomsIDs) {
 			console.error(`WARN: User ${username} has no rooms yet!`);
 			res.json({ message: "User has no rooms yet!", status: "success" });
 			return;
 		}
 
-		let roomIDandUsers = {};
+		let roomIDandUsers = [];
 		for (const roomID of roomsIDs) {
 			const users = await RoomModel.getRoomUsernames(roomID);
 			const roomName = await RoomModel.getRoomName(roomID);
-			roomIDandUsers[roomID] = { users, roomName };
-			// roomIDandUsers[roomID] = users;
+			roomIDandUsers.push({ roomID, roomName, users});
 		}
-
+		console.log(roomIDandUsers);
 		console.log(`\t'${username}' fetched its rooms`);
 		res.json({ rooms: roomIDandUsers, status: "success" });
 	}
