@@ -77,7 +77,7 @@ const userLogin = async (req, res) => {
 };
 
 const userFetchRoomsWithDetails = async (req, res) => {
-	console.log('POST: /api/fetch-rooms');
+	console.log('POST: /api/fetch-user-rooms');
 
 	try {
 		const { username } = req.body;
@@ -88,7 +88,7 @@ const userFetchRoomsWithDetails = async (req, res) => {
 			return;
 		}
 
-		const roomsIDs = await UserModel.getUserRoomnames(username);
+		const roomsIDs = await UserModel.getUserRooms(username);
 		if (!roomsIDs) {
 			console.error(`WARN: User ${username} has no rooms yet!`);
 			res.json({ message: "User has no rooms yet!", status: "success" });
@@ -97,8 +97,10 @@ const userFetchRoomsWithDetails = async (req, res) => {
 
 		let roomIDandUsers = {};
 		for (const roomID of roomsIDs) {
-			var users = await RoomModel.getRoomUsernames(roomID);
-			roomIDandUsers[roomID] = users;
+			const users = await RoomModel.getRoomUsernames(roomID);
+			const roomName = await RoomModel.getRoomName(roomID);
+			roomIDandUsers[roomID] = { users, roomName };
+			// roomIDandUsers[roomID] = users;
 		}
 
 		console.log(`\t'${username}' fetched its rooms`);

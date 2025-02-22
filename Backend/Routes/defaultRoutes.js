@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
 
 
 router.get('*', (req, res) => {
-	console.log("GET: *");
+	console.log("GET: * ", req.url);
 	res.status(404).json({message: "404 Not Found"});
 });
 

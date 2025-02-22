@@ -64,5 +64,47 @@ const joinRoom = async (req, res) => {
 	}
 };
 
+const setRoomName = async (req, res) => {
+	console.log("POST: /api/chat/set-name");
 
-module.exports = { createRoom, joinRoom };
+	try {
+		const { roomID, roomName } = req.body;
+
+		if (!roomID || !roomName) {
+			console.error(`ERROR:\tMissing required fields RoomID: '${roomID}'  RoomName: '${roomName}'`);
+			return res.status(400).json({ message: `Missing required fields RoomID: '${roomID}'  RoomName: '${roomName}'`, status: "error" });
+		}
+
+		const room = await RoomModel.setRoomName(roomID, roomName);
+		if (!room) {
+			console.error(`ERROR:\tRoom ${roomID} not found`);
+			return res.status(404).json({ message: `Room ${roomID} not found`, status: "error" });
+		}
+
+		console.log(`\tRoomID '${roomID}' renamed to '${roomName}'`);
+		res.json({ message: `RoomID '${roomID}' renamed to '${roomName}'`, status: "success" });
+	}
+	catch (error) {
+		console.error("ERROR:\tCannot set room name:", error);
+		res.status(500).json({ error: "Database error" });
+	}
+};
+
+const getRooms = async (req, res) => {
+	console.log("POST: /api/chat/rooms");
+
+	try {
+		const rooms = await RoomModel.getRoomIDs();
+		// const rooms = await RoomModel.getRoomNames();
+		// const roomNames = rooms.map(room => room.roomName);
+
+		console.log(`\tFound ${rooms.length} rooms`);
+		res.json({ rooms, status: "success" });
+	}
+	catch (error) {
+		console.error("ERROR:\tCannot fetch rooms:", error);
+		res.status(500).json({ error: "Database error" });
+	}
+};
+
+module.exports = { createRoom, joinRoom, setRoomName , getRooms};
