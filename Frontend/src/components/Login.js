@@ -7,6 +7,9 @@ import {Icon} from 'react-icons-kit';
 import {eyeOff} from 'react-icons-kit/feather/eyeOff';
 import {eye} from 'react-icons-kit/feather/eye'
 
+import "../styles/login.css";
+
+
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -51,37 +54,35 @@ function Login() {
     }
  }
 
-  return (
-    <div className="auth-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          placeholder="Enter username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <input
-          type={type}
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <span class="flex justify-around items-center" onClick={handleToggle}>
-              <Icon class="absolute mr-10" icon={icon} size={25}/>
-          </span>
-        
+ return (
+  <div className="login-page">
+    <h2>Login</h2>
+    <form onSubmit={handleLogin}>
+      <input
+        type="text"
+        placeholder="Enter username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+      />
+      <input
+        type={type}
+        placeholder="Enter password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <span className="flex" onClick={handleToggle}>
+        <Icon className="icon" icon={icon} size={25}/>
+      </span>
+      <button type="submit">Login</button>
+    </form>
+    <p>
+      Don't have an account? <Link to="/signup">Signup here</Link>
+    </p>
+  </div>
+);
 
-        <button type="submit">Login</button>
-      </form>
-      
-      <p>
-        Don't have an account? <Link to="/signup">Signup here</Link>
-      </p>
-    </div>
-  );
 }
 
 export default Login;

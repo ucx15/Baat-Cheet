@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+// import "../styles/ChatGallery.css";
 
 function ChatGallery() {
   const [chats, setChats] = useState({}); // Store rooms as an object
@@ -79,6 +80,8 @@ function ChatGallery() {
     }
   };
 
+
+
   return (
     <div className="chat-gallery">
     <h2>Welcome, {username || "Guest"}!</h2>
@@ -106,15 +109,16 @@ function ChatGallery() {
       {Object.keys(chats).length > 0 ? (
   Object.entries(chats).map(([roomId, users]) => 
     users.length > 1 && (
+    
       <div key={roomId} className="chat-room">
-        <Link to={`/chat/${roomId}`}><strong>Room ID: {roomId}</strong></Link>
-        <p>Users: {users.join(", ")}</p>
+      <Link to={`/chat/${roomId}`}><strong>Room ID: {roomId}</strong></Link> 
       </div>
+    
     )
   )
-) : (
+  ) : (
   <p>No active chats available</p>
-)}
+  )}
 
       </div>
     </div>

@@ -2,12 +2,17 @@ import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { FaEdit } from 'react-icons/fa'; // Example using Font Awesome
+// import "../styles/ChatRoom.css";
 
 function ChatRoom() {
-  const { roomID } = useParams();
+  const {roomID , setroomID} = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [username, setUsername] = useState("");
+  const [editRoomId, seteditRoomId] = useState("");
+  const [IsEditing, setIsEditing] = useState(false);
+  
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -67,12 +72,72 @@ function ChatRoom() {
     }
   };
 
+  const handleEditField = () => {
+    if(IsEditing === true){
+      setIsEditing(false);
+    }
+    else{
+      setIsEditing(true);
+      <button onClick={changeRoomId}>Save</button>
+    }
+  };
+
+  const changeRoomId = async () => {
+
+    seteditRoomId(editRoomId);
+
+    try {
+      await axios.post("http://localhost:3000/api/chat/editedRoomId", {
+        roomID: roomID,
+        changedId: editRoomId,
+      });
+      alert("Room name updated successfully");
+      setIsEditing(false);
+      console.log("Room created successfully:", editRoomId);
+    } catch (error) {
+      alert("Error updating room , Try after some time");
+      setIsEditing(false);
+      console.error("Error updating room:", error);
+      
+    }
+    
+
+
+  };
+
+  
+
   return (
     <div className="chat-room">
-      <h2>Room: {roomID}</h2>
-      <h3>Welcome, {username ? username : "Guest"}</h3>
+      <h2>Room: {roomID} 
+        {IsEditing ? (
+          <>
+          <input
+          type="Edit Room Name"
+          value={editRoomId}
+          onChange={(e) => seteditRoomId(e.target.value)}
+        
+          />
+          <button onClick={() => { 
+            changeRoomId(); 
+            
+          }}>Save</button> 
+          </>
+         ) : (null)}
+         
+         
 
-      <div className="messages">
+          <button onClick={(handleEditField)}>
+           <FaEdit/>
+          </button>
+
+      </h2>
+
+          
+
+          <h3>Welcome, {username ? username : "Guest"}</h3>
+
+          <div className="messages">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -81,9 +146,9 @@ function ChatRoom() {
             <strong>{msg.username}:</strong> {msg.message}
           </div>
         ))}
-      </div>
+          </div>
 
-      <div className="send-message">
+          <div className="send-message">
         <input
           type="text"
           placeholder="Type your message"
@@ -91,9 +156,11 @@ function ChatRoom() {
           onChange={(e) => setNewMessage(e.target.value)}
         />
         <button onClick={sendMessage}>Send</button>
-      </div>
+          </div>
     </div>
   );
 }
+
+
 
 export default ChatRoom;
