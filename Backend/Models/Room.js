@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const roomSchema = new mongoose.Schema({
   roomID: { type: String, required: true, unique: true }, // Unique room ID
-  roomName: { type: String, default: null}, // Name of the room
+  roomName: { type: String, default: null }, // Name of the room
   admin: { type: String, required: true }, // Admin of the room
   timestamp: { type: Date, default: Date.now }, // Timestamp of the room creation
 
@@ -37,21 +37,27 @@ const joinRoom = async (roomID, username) => {
   );
 };
 
+// return room by roomID without messages
 const findRoom = async (roomID) => {
-  return await Room.findOne({ roomID });
+  return await Room.findOne({ roomID }, { messages: 0 });
+};
+
+const findRoomsWithUser = async (username) => {
+  // return await Room.find({ users: username }, {_id:0, messages: 0, timestamp: 0});
+  return await Room.find({ users: username }, {_id : 0, roomID : 1, roomName : 1, admin : 1, users:1});
 };
 
 // return IDs of all rooms
 const getRoomIDs = async () => {
-  const rooms =  await Room.find({}, { roomID: 1 });
+  const rooms = await Room.find({}, { roomID: 1 });
   return rooms ? rooms.map(room => room.roomID) : [];
 };
 
 // return names of all rooms
 const getRoomNames = async () => {
   // get all rooms
-  const rooms =  await Room.find();
-    console.log(rooms);
+  const rooms = await Room.find();
+  console.log(rooms);
 
   return rooms ? rooms.map(room => room.roomName) : [];
 };
@@ -59,7 +65,7 @@ const getRoomNames = async () => {
 // return Roomname by Room ID
 const getRoomName = async (roomID) => {
   const room = await Room.findOne({ roomID });
-  console.log("room.roomName:", room.roomName);
+  // console.log("room.roomName:", room.roomName);
   return room.roomName;
 };
 
@@ -86,14 +92,4 @@ const addMessageToRoom = async (roomID, username, message) => {
 };
 
 
-const getRoomUsers = async (roomID) => {
-  const room = await Room.findOne({ roomID });
-  return room ? room.users : [];
-}
-
-const getRoomUsernames = async (roomID) => {
-  const room = await Room.findOne({ roomID });
-  return room ? room.users : [];
-}
-
-module.exports = { Room, createRoom, joinRoom, findRoom, getRoomIDs, getRoomNames, getRoomName, setRoomName, getRoomMessages, addMessageToRoom, getRoomUsers, getRoomUsernames };
+module.exports = { Room, createRoom, joinRoom, findRoom, findRoomsWithUser, getRoomIDs, getRoomNames, getRoomName, setRoomName, getRoomMessages, addMessageToRoom };

@@ -5,7 +5,7 @@ const UserModel = require("../Models/User");
 const RoomModel = require("../Models/Room");
 
 
-const SALT_ROUNDS =  Number(process.env.SALT_ROUNDS);
+const SALT_ROUNDS = Number(process.env.SALT_ROUNDS);
 
 
 const userSignup = async (req, res) => {
@@ -88,20 +88,23 @@ const userFetchRoomsWithDetails = async (req, res) => {
 			return;
 		}
 
-		const roomsIDs = await UserModel.getUserRoomIDs(username);
+		const user = await UserModel.getUser(username);
+
+		if (!user) {
+			console.error(`ERROR: User ${username} not found`);
+			res.status(404).json({ message: "User not found", status: "error" });
+			return;
+		}
+		const roomsIDs = user.rooms;
+
 		if (!roomsIDs) {
 			console.error(`WARN: User ${username} has no rooms yet!`);
 			res.json({ message: "User has no rooms yet!", status: "success" });
 			return;
 		}
 
-		let roomIDandUsers = [];
-		for (const roomID of roomsIDs) {
-			const users = await RoomModel.getRoomUsernames(roomID);
-			const roomName = await RoomModel.getRoomName(roomID);
-			roomIDandUsers.push({ roomID, roomName, users});
-		}
-		console.log(roomIDandUsers);
+		const roomIDandUsers = await RoomModel.findRoomsWithUser(username);
+
 		console.log(`\t'${username}' fetched its rooms`);
 		res.json({ rooms: roomIDandUsers, status: "success" });
 	}
