@@ -6,7 +6,7 @@ import { FaEdit } from "react-icons/fa"; // Example using Font Awesome
 import "../styles/ChatRoom.css";
 
 function ChatRoom() {
-  const { roomID } = useParams();
+  const { roomID} = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [username, setUsername] = useState("");
@@ -15,10 +15,17 @@ function ChatRoom() {
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
+  const queryParams = new URLSearchParams(window.location.search);
+  const roomName = queryParams.get("roomName");
+
   // Scroll to Bottom Function
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -87,10 +94,11 @@ function ChatRoom() {
   };
 
   const changeRoomId = async () => {
+    console.log("Updating room name to:", editRoomId);
     try {
-      await axios.post("http://localhost:3000/api/chat/editedRoomId", {
+      await axios.post("http://localhost:3000/api/chat/set-name", {
         roomID: roomID,
-        changedId: editRoomId,
+        roomName: editRoomId,
       });
       alert("Room name updated successfully");
       setIsEditing(false);
@@ -105,7 +113,16 @@ function ChatRoom() {
   return (
     <div className="chat-room">
       <h2>
-        Room: {roomID}
+      <h2>
+        Roomname: {roomName ? roomName : "Please Set the roomName"} <br />
+        Room Id: {roomID}
+      </h2>
+
+
+
+      
+
+        
         {IsEditing ? (
           <>
             <input type="text" value={editRoomId} onChange={(e) => seteditRoomId(e.target.value)} />

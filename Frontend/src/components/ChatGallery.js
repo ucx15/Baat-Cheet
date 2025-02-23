@@ -31,21 +31,21 @@ function ChatGallery() {
         { username },
         { headers: { "Content-Type": "application/json" } }
       );
-
+  
       console.log("Response Data:", response.data);
-
-      // Ensure response contains 'rooms'
-      if (response.data.rooms && typeof response.data.rooms === "object") {
-        setChats(response.data.rooms); // Store rooms directly as an object
+  
+      // Ensure response contains 'rooms' and is an array
+      if (Array.isArray(response.data.rooms)) {
+        setChats(response.data.rooms); // Store rooms as an array
       } else {
-        setChats({});
+        setChats([]);
       }
-
+  
     } catch (error) {
       console.error("Error fetching chats:", error.response?.data || error.message);
     }
   };
-
+  
   const CreateUniqueID = async () => {
     const uniqueID = Math.random().toString(36).substr(2, 9);
     setRoomID(uniqueID);
@@ -106,21 +106,23 @@ function ChatGallery() {
 
       <h3>Your Chats</h3>
       <div>
-      {Object.keys(chats).length > 0 ? (
-  Object.entries(chats).map(([roomId, users]) => 
-    users.length > 1 && (
-    
-      <div key={roomId} className="chat-room">
-      <Link to={`/chat/${roomId}`}><strong>Room ID: {roomId}</strong></Link> 
-      </div>
-    
-    )
-  )
-  ) : (
-  <p>No active chats available</p>
-  )}
+      {chats.length > 0 ? (
+      chats.map((chat) =>
+        chat.users.length > 1 && (
+          <div key={chat.roomID} className="chat-room">
+            <Link to={`/chat/${chat.roomID}?roomName=${chat.roomName}`}>
+          <strong>{chat.roomName ? `Room Name: ${chat.roomName}` : `Room ID: ${chat.roomID}`}</strong>
+        </Link>
+        <strong>{chat.users.join(", ")}</strong>
 
       </div>
+    )
+  )
+) : (
+  <p>No chats available</p>
+)}
+
+</div>
     </div>
   );
 }
