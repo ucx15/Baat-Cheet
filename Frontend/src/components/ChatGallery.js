@@ -104,26 +104,25 @@ function ChatGallery() {
       <button onClick={JoinRoom}>Join a Room</button>
     </div>
 
-      <h3>Your Chats</h3>
-      <div>
-      {chats.length > 0 ? (
-      chats.map((chat) =>
-        chat.users.length > 1 && (
+    <h3>Your Chats</h3>
+      <div className="oldchats">
+        {chats.length > 0 ? (
+          chats.map((chat) => (
           <div key={chat.roomID} className="chat-room">
             <Link to={`/chat/${chat.roomID}?roomName=${chat.roomName}`}>
-          <strong>{chat.roomName ? `Room Name: ${chat.roomName}` : `Room ID: ${chat.roomID}`}</strong>
-        </Link>
-        <strong>{chat.users.join(", ")}</strong>
-
+              <strong>{chat.roomName ? `Room Name: ${chat.roomName}` : `Room ID: ${chat.roomID}`}</strong>
+            </Link>
+            <strong>{chat.users.join(", ")}</strong>
+          </div>
+        ))
+  ) : (
+    <p>No chats available</p>
+  )}
       </div>
-    )
-  )
-) : (
-  <p>No chats available</p>
-)}
 
-</div>
-    </div>
+
+  </div>
+   
   );
 }
 
