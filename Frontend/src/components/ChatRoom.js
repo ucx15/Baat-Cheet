@@ -1,24 +1,24 @@
 import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
-import { useParams } from "react-router-dom";
-import { FaEdit } from "react-icons/fa"; // Example using Font Awesome
+import { useNavigate, useParams } from "react-router-dom";
+import { FaEdit } from "react-icons/fa"; 
 import "../styles/ChatRoom.css";
 
 function ChatRoom() {
-  const { roomID} = useParams();
+  const { roomID } = useParams();
+  const queryParams = new URLSearchParams(window.location.search);
+  const initialRoomName = queryParams.get("roomName") || ""; 
+
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [username, setUsername] = useState("");
   const [editRoomId, seteditRoomId] = useState("");
   const [IsEditing, setIsEditing] = useState(false);
+  const [roomName, setRoomName] = useState(initialRoomName);
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
-
-  const queryParams = new URLSearchParams(window.location.search);
-  const roomName = queryParams.get("roomName");
-
-  // Scroll to Bottom Function
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -33,12 +33,11 @@ function ChatRoom() {
       setUsername(storedUsername);
     }
 
-    // Fetch old messages from the backend
     const fetchOldMessages = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/getMessages/${roomID}`);
         setMessages(response.data);
-        scrollToBottom(); // Scroll after fetching messages
+        scrollToBottom();
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
@@ -49,7 +48,7 @@ function ChatRoom() {
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:3000"); // Initialize socket connection
+      socketRef.current = io("http://localhost:3000");
     }
 
     const socket = socketRef.current;
@@ -80,7 +79,6 @@ function ChatRoom() {
       setMessages((prevMessages) => [...prevMessages, messageData]);
       setNewMessage("");
 
-      // Store message in DB
       axios.post("http://localhost:3000/api/saveMessage", messageData).catch((error) => {
         console.error("Error saving message:", error);
       });
@@ -93,16 +91,35 @@ function ChatRoom() {
     setIsEditing(!IsEditing);
   };
 
+  const navigate = useNavigate();
+
+  const handleDeleteChat = async () => {
+    if (window.confirm("You cannot retrieve a room after deleting it! Are you sure?")) {
+      try {
+        await axios.post("http://localhost:3000/api/chat/delete", { roomID, username });
+        alert("Chat deleted successfully!");
+        navigate("/chat-gallery"); 
+      } catch (error) {
+        console.error("Error Deleting Room", error.response?.data || error.message);
+      }
+    }
+  };
+
   const changeRoomId = async () => {
-    console.log("Updating room name to:", editRoomId);
+    if (editRoomId.length > 10) {
+      alert("Room name cannot exceed 10 characters.");
+      return;
+    }
+
     try {
       await axios.post("http://localhost:3000/api/chat/set-name", {
         roomID: roomID,
         roomName: editRoomId,
       });
       alert("Room name updated successfully");
+      setRoomName(editRoomId);
       setIsEditing(false);
-      console.log("Room updated:", editRoomId);
+      
     } catch (error) {
       alert("Error updating room, try again later.");
       setIsEditing(false);
@@ -112,30 +129,39 @@ function ChatRoom() {
 
   return (
     <div className="chat-room">
-      <h2>
-      <h2>
-        Roomname: {roomName ? roomName : "Please Set the roomName"} <br />
-        Room Id: {roomID}
-      </h2>
+      <div className="room-header">
+        <div className="room-info">
+          <h2>Room Name: {roomName ? roomName : "Please Set the Room Name"}</h2>
+          <h3>Room ID: {roomID}</h3>
+        </div>
 
+        <div className="button-group">
+          {IsEditing ? (
+            <>
+              <input 
+                type="text" 
+                value={editRoomId} 
+                onChange={(e) => {
+                  if (e.target.value.length <= 10) {
+                    seteditRoomId(e.target.value);
+                  }
+                }} 
+              />
+              <button className="edit-button" onClick={changeRoomId}>Save</button>
+            </>
+          ) : (
+            <button className="edit-button" onClick={handleEditField}>
+              <FaEdit />
+            </button>
+          )}
 
+          <button className="delete-button" onClick={handleDeleteChat}>
+            Delete
+          </button>
+        </div>
+      </div>
 
-      
-
-        
-        {IsEditing ? (
-          <>
-            <input type="text" value={editRoomId} onChange={(e) => seteditRoomId(e.target.value)} />
-            <button onClick={changeRoomId}>Save</button>
-          </>
-        ) : null}
-
-        <button onClick={handleEditField}>
-          <FaEdit />
-        </button>
-      </h2>
-
-      <h3>Welcome, {username ? username : "Guest"}</h3>
+      <h3>Welcome, {username}</h3>
 
       {/* Messages Container */}
       <div className="messages">
@@ -159,7 +185,7 @@ function ChatRoom() {
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              e.preventDefault(); // Prevent default form submission
+              e.preventDefault();
               sendMessage();
             }
           }}
@@ -171,4 +197,3 @@ function ChatRoom() {
 }
 
 export default ChatRoom;
-

@@ -1,135 +1,117 @@
-/* Scoped Chat Room Specific Styles */
+/* ChatRoom.css */
 .chat-room {
-    width: 100%;
     max-width: 600px;
-    margin: 50px auto;
-    padding: 15px;
-    background: #202c33;
+    margin: 40px auto;
+    padding: 20px;
+    background: #1e1e2f;
     color: white;
     border-radius: 12px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
-    font-family: "Arial", sans-serif;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
 }
 
-.chat-room h2 {
+.room-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    font-size: 22px;
-    color: #00a884;
+    align-items: center;
+    margin-bottom: 20px;
+    background: #2c2c3e;
+    padding: 15px;
+    border-radius: 8px;
 }
 
-.chat-room button {
-    background: none;
+.room-info h2, .room-info h3 {
+    margin: 5px 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-button, .delete-button {
+    padding: 8px 12px;
     border: none;
-    color: white;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 18px;
-    margin-left: 10px;
+    font-size: 14px;
+    transition: background 0.3s ease;
 }
 
-.chat-room button:hover {
-    color: #00a884;
+.edit-button {
+    background: #4caf50;
+    color: white;
 }
 
-.chat-room .messages {
-    flex-grow: 1;
-    max-height: 400px;
+.edit-button:hover {
+    background: #3e8e41;
+}
+
+.delete-button {
+    background: #ff4d4d;
+    color: white;
+}
+
+.delete-button:hover {
+    background: #cc0000;
+}
+
+.messages {
+    max-height: 300px;
     overflow-y: auto;
+    background: #2c2c3e;
     padding: 10px;
-    margin-top: 15px;
-    background: #121b22;
-    border-radius: 10px;
-    box-shadow: inset 0px 4px 6px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
 }
 
-.chat-room .message {
+.message {
     padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    max-width: 75%;
-    word-wrap: break-word;
+    margin: 5px 0;
+    border-radius: 8px;
+    background: #3b3b4f;
+    transition: transform 0.2s ease;
 }
 
-.chat-room .my-message {
-    background: #005c4b;
-    align-self: flex-end;
+.message:hover {
+    transform: scale(1.02);
+}
+
+.my-message {
+    background: #4caf50;
     text-align: right;
     color: white;
 }
 
-.chat-room .other-message {
-    background: #2a3942;
-    align-self: flex-start;
-}
-
-.chat-room .send-message {
-    display: flex;
-    margin-top: 15px;
-}
-
-.chat-room .send-message input {
-    flex-grow: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 25px;
-    background: #1e2c35;
+.other-message {
+    background: #007bff;
+    text-align: left;
     color: white;
-}
-
-.chat-room .send-message button {
-    background: #00a884;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 25px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
-.chat-room .send-message button:hover {
-    background: #00775e;
 }
 
 .send-message {
     display: flex;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 600px;
-    background: #121b22;
-    padding: 10px;
-    border-radius: 25px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    gap: 10px;
+    margin-top: 10px;
 }
 
 .send-message input {
-    flex-grow: 1;
+    flex: 1;
     padding: 10px;
-    border: none;
-    border-radius: 25px;
-    background: #1e2c35;
-    color: white;
-    outline: none;
+    border-radius: 8px;
+    border: 1px solid #ccc;
 }
 
 .send-message button {
-    background: #00a884;
+    background: #4caf50;
+    color: white;
     border: none;
     padding: 10px 15px;
-    border-radius: 25px;
-    color: white;
-    font-weight: bold;
+    border-radius: 8px;
     cursor: pointer;
-    margin-left: 10px;
-    white-space: nowrap;
+    transition: background 0.3s ease;
 }
 
 .send-message button:hover {
-    background: #00775e;
+    background: #3e8e41;
 }
