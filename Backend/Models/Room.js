@@ -29,6 +29,10 @@ const createRoom = async (roomID, username) => {
   return await newRoom.save();
 };
 
+const deleteRoom = async (roomID, username) => {
+  return await Room.findOneAndDelete({ roomID, admin: username });
+}
+
 const joinRoom = async (roomID, username) => {
   return await Room.findOneAndUpdate(
     { roomID },
@@ -92,4 +96,4 @@ const addMessageToRoom = async (roomID, username, message) => {
 };
 
 
-module.exports = { Room, createRoom, joinRoom, findRoom, findRoomsWithUser, getRoomIDs, getRoomNames, getRoomName, setRoomName, getRoomMessages, addMessageToRoom };
+module.exports = { Room, createRoom, deleteRoom, joinRoom, findRoom, findRoomsWithUser, getRoomIDs, getRoomNames, getRoomName, setRoomName, getRoomMessages, addMessageToRoom };

@@ -17,8 +17,12 @@ router.post('/login', userController.userLogin);
 router.post('/fetch-user-rooms', userController.userFetchRoomsWithDetails);
 
 router.post('/chat/create', roomController.createRoom);
+router.post('/chat/delete', roomController.deleteRoom);
 router.post('/chat/join', roomController.joinRoom);
 router.post('/chat/set-name', roomController.setRoomName);
 router.post('/chat/rooms', roomController.getRooms);
 
 module.exports = router;
+
+// TODO: logout route
+// TODO: middleware JWT auth

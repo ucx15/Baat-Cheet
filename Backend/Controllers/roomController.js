@@ -13,6 +13,12 @@ const createRoom = async (req, res) => {
 			return res.status(400).json({ message: "Missing required fields", status: "error" });
 		}
 
+		// Check if the room already exists
+		if (await RoomModel.findRoom(roomID)) {
+			console.error(`ERROR:\tRoom ${roomID} already exists`);
+			return res.status(409).json({ message: "Room already exists", status: "error" });
+		}
+
 		await RoomModel.createRoom(roomID, username);
 		if (!await RoomModel.findRoom(roomID)) {
 			// Failed to create a Room
@@ -30,6 +36,34 @@ const createRoom = async (req, res) => {
 		res.status(500).json({ error: "Database error" });
 	}
 };
+
+const deleteRoom = async(req, res) => {
+
+	try {
+		const { roomID, username } = req.body;
+
+		if (!roomID || !username) {
+			console.error("ERROR:\tMissing required fields");
+			return res.status(400).json({ message: "Missing required fields", status: "error" });
+		}
+
+		const deleted = await RoomModel.deleteRoom(roomID, username);
+		if ( !deleted ) {
+			// Failed to delete a Room
+			console.error(`ERROR:\tDeleting Room:${roomID} requires admin privilage or room not found`);
+			return res.status(404).json({ message: `Deleting Room:${roomID} requires admin privilage or room not found`, status: "error" });
+		}
+
+		await UserModel.removeRoomfromAllUsers(roomID);
+
+		console.log(`\tUser ${username} deleted room ${roomID}`);
+		res.json({ message: "Room deleted successfully", status: "success" });
+	}
+	catch (error) {
+		console.error("ERROR:\tCannot delete room:", error);
+		res.status(500).json({ error: "Database error" });
+	}
+}
 
 const joinRoom = async (req, res) => {
 	console.log("POST: /api/chat/join");
@@ -107,4 +141,4 @@ const getRooms = async (req, res) => {
 	}
 };
 
-module.exports = { createRoom, joinRoom, setRoomName , getRooms};
+module.exports = { createRoom, joinRoom, deleteRoom, setRoomName , getRooms};
