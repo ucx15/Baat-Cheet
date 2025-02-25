@@ -65,14 +65,14 @@ function ChatGallery() {
   
   const GetChats = async () => {
     try {
-      const accessToken = localStorage.getItem("AccessToken"); // Retrieve fresh token
+      const AccessToken = localStorage.getItem("AccessToken"); // Retrieve fresh token
       const response = await axios.post(
         "http://localhost:3000/api/fetch-user-rooms",
         { username },
         {
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`
+            "Authorization": `Bearer ${AccessToken}`
           }
         }
       );
@@ -107,13 +107,13 @@ function ChatGallery() {
     setRoomID(uniqueID);
   
     try {
-      const accessToken = localStorage.getItem("AccessToken"); // Retrieve fresh token
+      const AccessToken = localStorage.getItem("AccessToken"); // Retrieve fresh token
       const response = await axios.post(
         "http://localhost:3000/api/chat/create",
         { roomID: uniqueID, username },
         {
           headers: {
-            "Authorization": `Bearer ${accessToken}`
+            "Authorization": `Bearer ${AccessToken}`
           }
         }
       );
@@ -149,13 +149,13 @@ function ChatGallery() {
     }
   
     try {
-      const accessToken = localStorage.getItem("AccessToken");
+      const AccessToken = localStorage.getItem("AccessToken");
       await axios.post(
         "http://localhost:3000/api/chat/join",
         { roomID, username },
         {
           headers: {
-            "Authorization": `Bearer ${accessToken}`
+            "Authorization": `Bearer ${AccessToken}`
           }
         }
       );
