@@ -1,0 +1,21 @@
+.chat-layout {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .left-panel {
+    width: 30%;
+    background-color: #111b21;
+    color: white;
+    overflow-y: auto;
+    border-right: 1px solid #202c33;
+  }
+  
+  .right-panel {
+    width: 70%;
+    background-color: #0b141a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+  }
+  

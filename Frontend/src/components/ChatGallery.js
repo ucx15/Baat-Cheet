@@ -39,6 +39,8 @@ function ChatGallery() {
     }
   };
 
+  
+
   const CreateUniqueID = async () => {
     const uniqueID = Math.random().toString(36).substr(2, 9);
     setRoomID(uniqueID);
@@ -64,6 +66,7 @@ function ChatGallery() {
         username,
       });
       navigate(`/chat/${roomID}`);
+      GetChats();
     } catch (error) {
       console.error("Error joining room:", error);
       alert("Failed to join the room, please try again!");
