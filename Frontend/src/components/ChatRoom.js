@@ -80,9 +80,9 @@ function ChatRoom() {
       setMessages((prevMessages) => [...prevMessages, messageData]);
       setNewMessage("");
 
-      axios.post("http://localhost:3000/api/saveMessage", messageData).catch((error) => {
-        console.error("Error saving message:", error);
-      });
+      // axios.post("http://localhost:3000/api/saveMessage", messageData).catch((error) => {
+      //   console.error("Error saving message:", error);
+      // });
 
       scrollToBottom();
     }
@@ -137,13 +137,11 @@ function ChatRoom() {
         if (status === 403) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
-          // window.location.href = "/";
-        } else if (status === 401) {
-          console.error("Unauthorized: Token expired or invalid");
           RefreshTokenFunction();
-          alert("Session expired. Please log in again.");
-          window.location.href = "/";
-        } else {
+          // window.location.href = "/";
+        } 
+        
+        else {
           console.error("Error deleting room:", errorMessage);
           alert("Failed to delete the room, please try again!");
         }
@@ -181,14 +179,11 @@ const changeRoomId = async () => {
       if (status === 403) {
         console.error("Forbidden:", errorMessage);
         alert("Access Denied: " + errorMessage);
-        // window.location.href = "/";
-      } else if (status === 401) {
-        console.error("Unauthorized: Token expired or invalid");
         RefreshTokenFunction();
-        alert("Session expired. Please log in again.");
-        
         // window.location.href = "/";
-      } else {
+      } 
+        
+       else {
         console.error("Error changing room name:", errorMessage);
         alert("Failed to update the room name, please try again!");
       }

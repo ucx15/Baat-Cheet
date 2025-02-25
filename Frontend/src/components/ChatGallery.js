@@ -87,8 +87,7 @@ function ChatGallery() {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
           // window.location.href = "/";
-        } else if (status === 401) {
-          console.error("Unauthorized: Token expired or invalid");
+        
           const newToken = await RefreshTokenFunction();
           if (newToken) GetChats(); // Retry after refreshing token
           else alert("Session expired. Please log in again.");
@@ -126,8 +125,7 @@ function ChatGallery() {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
           // window.location.href = "/";
-        } else if (status === 401) {
-          console.error("Unauthorized: Token expired or invalid");
+        
           const newToken = await RefreshTokenFunction();
           if (newToken) CreateUniqueID(); // Retry after refreshing token
           else alert("Session expired. Please log in again.");
@@ -171,13 +169,10 @@ function ChatGallery() {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
           // window.location.href = "/";
-        } else if (status === 401) {
-          console.error("Unauthorized: Token expired or invalid");
           const newToken = await RefreshTokenFunction();
           if (newToken) JoinRoom(); 
-          else alert("Session expired. Please log in again.");
-          // window.location.href = "/";
-        } else {
+        }
+         else {
           console.error("Error joining room:", errorMessage);
           alert("Failed to join the room, please try again!");
         }
