@@ -16,8 +16,6 @@ function Login() {
   const [icon, setIcon] = useState(eyeOff);
   const [showSplash, setShowSplash] = useState(true);
   const [showSubtitle, setShowSubtitle] = useState(false);
-  const [AccessToken, setAccessToken] = useState(false);
-  const [RefreshToken, setRefreshToken] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,11 +32,11 @@ function Login() {
         password,
       });
       
-      setAccessToken(response.data.accessToken);
-      setRefreshToken(response.data.refreshToken);
+      // setAccessToken(response.data.accessToken);
+      // setRefreshToken(response.data.refreshToken);
 
-      localStorage.setItem("AccessToken", AccessToken);
-      localStorage.setItem("RefreshToken", RefreshToken);
+      localStorage.setItem("AccessToken", response.data.accessToken);
+      localStorage.setItem("RefreshToken", response.data.refreshToken);
 
       
 
