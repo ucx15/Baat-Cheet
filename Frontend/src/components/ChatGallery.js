@@ -42,6 +42,7 @@ function ChatGallery() {
   //     console.error("Error fetching chats:", error.response?.data || error.message);
   //   }
   // };
+
   const RefreshTokenFunction = async () => {
     try {
       const refreshToken = localStorage.getItem("RefreshToken"); // Retrieve fresh token
@@ -85,13 +86,13 @@ function ChatGallery() {
         if (status === 403) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
-          window.location.href = "/";
+          // window.location.href = "/";
         } else if (status === 401) {
           console.error("Unauthorized: Token expired or invalid");
           const newToken = await RefreshTokenFunction();
           if (newToken) GetChats(); // Retry after refreshing token
           else alert("Session expired. Please log in again.");
-          window.location.href = "/";
+          // window.location.href = "/";
         } else {
           console.error("Error fetching chats:", errorMessage);
         }
@@ -124,13 +125,13 @@ function ChatGallery() {
         if (status === 403) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
-          window.location.href = "/";
+          // window.location.href = "/";
         } else if (status === 401) {
           console.error("Unauthorized: Token expired or invalid");
           const newToken = await RefreshTokenFunction();
           if (newToken) CreateUniqueID(); // Retry after refreshing token
           else alert("Session expired. Please log in again.");
-          window.location.href = "/";
+          // window.location.href = "/";
         } else {
           console.error("Error creating room:", errorMessage);
           alert("Room creation failed, please try again!");
@@ -169,13 +170,13 @@ function ChatGallery() {
         if (status === 403) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
-          window.location.href = "/";
+          // window.location.href = "/";
         } else if (status === 401) {
           console.error("Unauthorized: Token expired or invalid");
           const newToken = await RefreshTokenFunction();
           if (newToken) JoinRoom(); 
           else alert("Session expired. Please log in again.");
-          window.location.href = "/";
+          // window.location.href = "/";
         } else {
           console.error("Error joining room:", errorMessage);
           alert("Failed to join the room, please try again!");

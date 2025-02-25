@@ -1,7 +1,4 @@
-/* ChatRoom.css */
 .chat-room {
-    /* max-width: 600px; */
-    margin: 40px auto;
     padding: 20px;
     background: #1e1e2f;
     color: white;
@@ -9,9 +6,10 @@
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
-}
-
-.room-header {
+    height: 100%;
+  }
+  
+  .room-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -19,99 +17,99 @@
     background: #2c2c3e;
     padding: 15px;
     border-radius: 8px;
-}
-
-.room-info h2, .room-info h3 {
+  }
+  
+  .room-info h2,
+  .room-info h3 {
     margin: 5px 0;
-
-}
-
-.button-group {
+  }
+  
+  .button-group {
     display: flex;
     gap: 10px;
-}
-
-.edit-button, .delete-button {
+  }
+  
+  .edit-button,
+  .delete-button {
     padding: 8px 12px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
     transition: background 0.3s ease;
-}
-
-.edit-button {
+  }
+  
+  .edit-button {
     background: #4caf50;
     color: white;
-}
-
-.edit-button:hover {
+  }
+  
+  .edit-button:hover {
     background: #3e8e41;
-}
-
-.delete-button {
+  }
+  
+  .delete-button {
     background: #ff4d4d;
     color: white;
-}
-
-.delete-button:hover {
+  }
+  
+  .delete-button:hover {
     background: #cc0000;
-}
-
-.messages {
-    max-height: 300px;
+  }
+  
+  .messages {
     overflow-y: auto;
     background: #2c2c3e;
     padding: 10px;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-}
-
-.message {
+  }
+  
+  .message {
     padding: 10px;
     margin: 5px 0;
     border-radius: 8px;
     background: #3b3b4f;
     transition: transform 0.2s ease;
-    max-width: 60%; /* Limit the width of the message bubble */
-    word-wrap: break-word; /* Ensures words wrap within the box */
-    overflow-wrap: break-word; /* Additional support for wrapping */
+    max-width: 60%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     display: inline-block;
-}
-
-.message:hover {
+  }
+  
+  .message:hover {
     transform: scale(1.02);
-}
-
-.my-message {
+  }
+  
+  .my-message {
     background: #4caf50;
     color: white;
     text-align: left;
-    align-self: flex-end; /* Aligns user's messages to the right */
-}
-
-.other-message {
+    align-self: flex-end;
+  }
+  
+  .other-message {
     background: #007bff;
     color: white;
     text-align: left;
-    align-self: flex-start; /* Aligns received messages to the left */
-}
-
-.send-message {
+    align-self: flex-start;
+  }
+  
+  .send-message {
     display: flex;
     gap: 10px;
     margin-top: 10px;
-}
-
-.send-message input {
+  }
+  
+  .send-message input {
     flex: 1;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
-}
-
-.send-message button {
+  }
+  
+  .send-message button {
     background: #4caf50;
     color: white;
     border: none;
@@ -119,12 +117,9 @@
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.3s ease;
-}
-
-.send-message button:hover {
+  }
+  
+  .send-message button:hover {
     background: #3e8e41;
-}
-
-.room-info{
-min-width: 500px;
-}
+  }
+  
