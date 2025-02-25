@@ -16,6 +16,8 @@ function Login() {
   const [icon, setIcon] = useState(eyeOff);
   const [showSplash, setShowSplash] = useState(true);
   const [showSubtitle, setShowSubtitle] = useState(false);
+  const [AccessToken, setAccessToken] = useState(false);
+  const [RefreshToken, setRefreshToken] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +33,14 @@ function Login() {
         username,
         password,
       });
+      
+      setAccessToken(response.data.accessToken);
+      setRefreshToken(response.data.refreshToken);
+
+      localStorage.setItem("AccessToken", AccessToken);
+      localStorage.setItem("RefreshToken", RefreshToken);
+
+      
 
       localStorage.setItem("username", username);
       console.log("Stored Username:", localStorage.getItem("username")); // Debugging log

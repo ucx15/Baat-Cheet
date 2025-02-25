@@ -94,40 +94,110 @@ function ChatRoom() {
 
   const navigate = useNavigate();
 
+  const RefreshTokenFunction = async () => {
+    try {
+      const refreshToken = localStorage.getItem("RefreshToken"); // Retrieve fresh token
+      const response = await axios.post(
+        "http://localhost:3000//api/refresh-token",
+        { refreshToken },
+        {username}
+        
+      );
+  
+      const newAccessToken = response.data.accessToken;
+      localStorage.setItem("AccessToken", newAccessToken);
+      console.log("Refreshed token:", newAccessToken);
+      return newAccessToken;
+    } catch (error) {
+      console.error("Error refreshing token:", error.response?.data || error.message);
+      return null;
+    }
+  };
+
   const handleDeleteChat = async () => {
-    if (window.confirm("You cannot retrieve a room after deleting it! Are you sure?")) {
-      try {
-        await axios.post("http://localhost:3000/api/chat/delete", { roomID, username });
-        alert("Chat deleted successfully!");
-        navigate("/chat-gallery"); 
-      } catch (error) {
-        console.error("Error Deleting Room", error.response?.data || error.message);
+  if (window.confirm("You cannot retrieve a room after deleting it! Are you sure?")) {
+    const AccessToken = localStorage.getItem("AccessToken");
+    try {
+      await axios.post(
+        "http://localhost:3000/api/chat/delete",
+        { roomID, username },
+        {
+          headers: {
+            "Authorization": `Bearer ${AccessToken}`,
+          },
+        }
+      );
+      alert("Chat deleted successfully!");
+      navigate("/chat-gallery");
+    } catch (error) {
+      if (error.response) {
+        const status = error.response.status;
+        const errorMessage = error.response.data;
+
+        if (status === 403) {
+          console.error("Forbidden:", errorMessage);
+          alert("Access Denied: " + errorMessage);
+          window.location.href = "/";
+        } else if (status === 401) {
+          console.error("Unauthorized: Token expired or invalid");
+          RefreshTokenFunction();
+          alert("Session expired. Please log in again.");
+          window.location.href = "/";
+        } else {
+          console.error("Error deleting room:", errorMessage);
+          alert("Failed to delete the room, please try again!");
+        }
+      } else {
+        console.error("Network error:", error.message);
       }
     }
-  };
+  }
+};
 
-  const changeRoomId = async () => {
-    if (editRoomId.length > 10) {
-      alert("Room name cannot exceed 10 characters.");
-      return;
-    }
+const changeRoomId = async () => {
+  if (editRoomId.length > 10) {
+    alert("Room name cannot exceed 10 characters.");
+    return;
+  }
+  const AccessToken = localStorage.getItem("AccessToken");
+  try {
+    await axios.post(
+      "http://localhost:3000/api/chat/set-name",
+      { roomID, roomName: editRoomId },
+      {
+        headers: {
+          "Authorization": `Bearer ${AccessToken}`,
+        },
+      }
+    );
+    alert("Room name updated successfully");
+    setRoomName(editRoomId);
+    setIsEditing(false);
+  } catch (error) {
+    if (error.response) {
+      const status = error.response.status;
+      const errorMessage = error.response.data;
 
-    try {
-      await axios.post("http://localhost:3000/api/chat/set-name", {
-        roomID: roomID,
-        roomName: editRoomId,
-      });
-      alert("Room name updated successfully");
-      setRoomName(editRoomId);
-      setIsEditing(false);
-      
-      
-    } catch (error) {
-      alert("Error updating room, try again later.");
-      setIsEditing(false);
-      console.error("Error updating room:", error);
+      if (status === 403) {
+        console.error("Forbidden:", errorMessage);
+        alert("Access Denied: " + errorMessage);
+        window.location.href = "/";
+      } else if (status === 401) {
+        console.error("Unauthorized: Token expired or invalid");
+        RefreshTokenFunction();
+        alert("Session expired. Please log in again.");
+        
+        window.location.href = "/login";
+      } else {
+        console.error("Error changing room name:", errorMessage);
+        alert("Failed to update the room name, please try again!");
+      }
+    } else {
+      console.error("Network error:", error.message);
     }
-  };
+  }
+};
+
 
   return (
     <div className="chat-room">
