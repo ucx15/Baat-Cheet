@@ -134,14 +134,16 @@ function ChatRoom() {
         const status = error.response.status;
         const errorMessage = error.response.data;
 
-        if (status === 403) {
+        if (status === 401) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
-          RefreshTokenFunction();
           // window.location.href = "/";
-        } 
-        
-        else {
+        } else if (status === 403) {
+          console.error("Unauthorized: Token expired or invalid");
+          RefreshTokenFunction();
+          alert("Session expired. Please log in again.");
+          window.location.href = "/";
+        } else {
           console.error("Error deleting room:", errorMessage);
           alert("Failed to delete the room, please try again!");
         }
@@ -176,14 +178,17 @@ const changeRoomId = async () => {
       const status = error.response.status;
       const errorMessage = error.response.data;
 
-      if (status === 403) {
+      if (status === 401) {
         console.error("Forbidden:", errorMessage);
         alert("Access Denied: " + errorMessage);
-        RefreshTokenFunction();
         // window.location.href = "/";
-      } 
+      } else if (status === 403) {
+        console.error("Unauthorized: Token expired or invalid");
+        RefreshTokenFunction();
+        alert("Session expired. Please log in again.");
         
-       else {
+        // window.location.href = "/";
+      } else {
         console.error("Error changing room name:", errorMessage);
         alert("Failed to update the room name, please try again!");
       }
