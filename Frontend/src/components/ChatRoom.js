@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FaEdit } from "react-icons/fa"; 
 import "../styles/ChatRoom.css";
 
+
 function ChatRoom() {
   const { roomID } = useParams();
   const queryParams = new URLSearchParams(window.location.search);
@@ -119,6 +120,7 @@ function ChatRoom() {
       alert("Room name updated successfully");
       setRoomName(editRoomId);
       setIsEditing(false);
+      
       
     } catch (error) {
       alert("Error updating room, try again later.");

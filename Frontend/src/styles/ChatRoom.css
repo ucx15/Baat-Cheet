@@ -1,6 +1,6 @@
 /* ChatRoom.css */
 .chat-room {
-    max-width: 600px;
+    /* max-width: 600px; */
     margin: 40px auto;
     padding: 20px;
     background: #1e1e2f;
@@ -23,6 +23,7 @@
 
 .room-info h2, .room-info h3 {
     margin: 5px 0;
+
 }
 
 .button-group {
@@ -63,6 +64,8 @@
     background: #2c2c3e;
     padding: 10px;
     border-radius: 8px;
+    display: flex;
+    flex-direction: column;
 }
 
 .message {
@@ -71,6 +74,10 @@
     border-radius: 8px;
     background: #3b3b4f;
     transition: transform 0.2s ease;
+    max-width: 60%; /* Limit the width of the message bubble */
+    word-wrap: break-word; /* Ensures words wrap within the box */
+    overflow-wrap: break-word; /* Additional support for wrapping */
+    display: inline-block;
 }
 
 .message:hover {
@@ -79,14 +86,16 @@
 
 .my-message {
     background: #4caf50;
-    text-align: right;
     color: white;
+    text-align: left;
+    align-self: flex-end; /* Aligns user's messages to the right */
 }
 
 .other-message {
     background: #007bff;
-    text-align: left;
     color: white;
+    text-align: left;
+    align-self: flex-start; /* Aligns received messages to the left */
 }
 
 .send-message {
@@ -114,4 +123,8 @@
 
 .send-message button:hover {
     background: #3e8e41;
+}
+
+.room-info{
+min-width: 500px;
 }
