@@ -1,8 +1,11 @@
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require('dotenv').config();
 
+
 const UserModel = require("../Models/User");
 const RoomModel = require("../Models/Room");
+const authController = require("./authController");
 
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS);
@@ -54,22 +57,31 @@ const userLogin = async (req, res) => {
 		}
 
 		const user = await UserModel.getUser(username);
-
-		if (user) {
-			if (await bcrypt.compare(password, user.password)) {
-				console.log(`\t'${username}' Logged in`);
-				res.json({ message: "Logged in Successfully!", status: "success", username: username });
-			}
-			else {
-				console.error(`ERROR: Invalid Password for user ${username}`);
-				res.status(401).json({ message: "Invalid Password", status: "error" });
-			}
-		}
-		else {
+		if (!user) {
 			console.error(`ERROR: User ${username} not found`);
 			res.status(404).json({ message: "User not found", status: "error" });
 		}
+
+		if (await bcrypt.compare(password, user.password)) {
+
+			const accessToken  = authController.generateAccessToken(username);
+			const refreshToken = authController.generateRefreshToken(username);
+
+			res.json({
+				message: "Logged in Successfully!",
+				status: "success",
+				accessToken,
+				refreshToken });
+		}
+
+		else {
+			console.error(`ERROR: Invalid Password for user ${username}`);
+			res.status(401).json({ message: "Invalid Password", status: "error" });
+		}
+
+
 	}
+
 	catch (error) {
 		console.error('ERROR: Cannot Login:', error);
 		res.status(500).json({ error: "Database error" });
