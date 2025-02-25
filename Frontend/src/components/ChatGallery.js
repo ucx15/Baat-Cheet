@@ -30,7 +30,7 @@ function ChatGallery() {
   //       "http://localhost:3000/api/fetch-user-rooms",
   //       { username },
   //       { headers: { "Content-Type": "application/json" , "Authorization":`Bearer ${"AccessToken"}`}}
-                
+
   //     );
 
   //     if (Array.isArray(response.data.rooms)) {
@@ -48,11 +48,9 @@ function ChatGallery() {
       const refreshToken = localStorage.getItem("RefreshToken"); // Retrieve fresh token
       const response = await axios.post(
         "http://localhost:3000/api/refresh-token",
-        { refreshToken },
-        {username}
-        
+        { refreshToken , username},
       );
-  
+
       const newAccessToken = response.data.accessToken;
       localStorage.setItem("AccessToken", newAccessToken);
       console.log("Refreshed token:", newAccessToken);
@@ -62,7 +60,7 @@ function ChatGallery() {
       return null;
     }
   };
-  
+
   const GetChats = async () => {
     try {
       const AccessToken = localStorage.getItem("AccessToken"); // Retrieve fresh token
@@ -76,13 +74,13 @@ function ChatGallery() {
           }
         }
       );
-  
+
       setChats(Array.isArray(response.data.rooms) ? response.data.rooms : []);
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-  
+
         if (status === 401) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
@@ -101,11 +99,11 @@ function ChatGallery() {
       }
     }
   };
-  
+
   const CreateUniqueID = async () => {
     const uniqueID = Math.random().toString(36).substr(2, 9);
     setRoomID(uniqueID);
-  
+
     try {
       const AccessToken = localStorage.getItem("AccessToken"); // Retrieve fresh token
       const response = await axios.post(
@@ -121,7 +119,7 @@ function ChatGallery() {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-  
+
         if (status === 401) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
@@ -141,13 +139,13 @@ function ChatGallery() {
       }
     }
   };
-  
+
   const JoinRoom = async () => {
     if (!roomID) {
       alert("Please enter a room ID to join.");
       return;
     }
-  
+
     try {
       const AccessToken = localStorage.getItem("AccessToken");
       await axios.post(
@@ -159,14 +157,14 @@ function ChatGallery() {
           }
         }
       );
-  
+
       navigate(`/chat/${roomID}`);
       GetChats();
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-  
+
         if (status === 403) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
@@ -174,7 +172,7 @@ function ChatGallery() {
         } else if (status === 401) {
           console.error("Unauthorized: Token expired or invalid");
           const newToken = await RefreshTokenFunction();
-          if (newToken) JoinRoom(); 
+          if (newToken) JoinRoom();
           else alert("Session expired. Please log in again.");
           // window.location.href = "/";
         } else {
@@ -186,7 +184,7 @@ function ChatGallery() {
       }
     }
   };
-  
+
   //   if (!roomID) {
   //     alert("Please enter a room ID to join.");
   //     return;
@@ -195,7 +193,7 @@ function ChatGallery() {
   //     await axios.post("http://localhost:3000/api/chat/join", {
   //       roomID,
   //       username,
-        
+
   //     });
   //     navigate(`/chat/${roomID}`);
   //     GetChats();

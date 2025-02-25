@@ -31,8 +31,8 @@ const authenticate = (req, res, next) => {
 
 	jwt.verify(token, process.env.JWT_ACCESS_SECRET, (err, user) => {
 		if (err) {
-			console.error(`ERROR:\tAccess token  expired for user:'${req.body.username}'\n${err}`);
-			return res.status(403).json({ message: "Invalid Access Token", status: "error" });
+			console.error("ERROR:\tAccess Token expired\n", err);
+			return res.status(403).json({ message: "Access Token expired", status: "error" });
 		}
 
 		req.USER = user.username;
