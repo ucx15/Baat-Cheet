@@ -2,6 +2,7 @@
   display: flex;
   height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
 /* Left Panel (Chat Gallery) */
@@ -12,17 +13,17 @@
   overflow-y: auto;
   border-right: 1px solid #202c33;
   transition: transform 0.3s ease-in-out;
-  height: 100%;
+  max-height: 100%;
 }
 
 /* Right Panel (Chat Room) */
 .right-panel {
-  width: 70%;
+  flex-grow: 1;
   background-color: #0b141a;
   color: white;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  max-height: 100%;
 }
 
 /* Hamburger Button */
@@ -36,6 +37,7 @@
   font-size: 24px;
   cursor: pointer;
   color: white;
+  z-index: 1100;
 }
 
 /* Mobile View */

@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FaEdit } from "react-icons/fa"; 
 import "../styles/ChatRoom.css";
 
-
 function ChatRoom() {
   const { roomID } = useParams();
   const queryParams = new URLSearchParams(window.location.search);
@@ -19,7 +18,18 @@ function ChatRoom() {
   const [roomName, setRoomName] = useState(initialRoomName);
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
-  
+  const navigate = useNavigate();
+
+  // Refresh the page only once when the user opens the chatroom
+  useEffect(() => {
+    const hasRefreshed = sessionStorage.getItem("hasRefreshed");
+    if (!hasRefreshed) {
+      sessionStorage.setItem("hasRefreshed", "true");
+      window.location.reload();
+    }
+  }, []);
+
+  // Scroll to bottom when messages update
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -79,11 +89,6 @@ function ChatRoom() {
       socketRef.current.emit("send_message", messageData);
       setMessages((prevMessages) => [...prevMessages, messageData]);
       setNewMessage("");
-
-      // axios.post("http://localhost:3000/api/saveMessage", messageData).catch((error) => {
-      //   console.error("Error saving message:", error);
-      // });
-
       scrollToBottom();
     }
   };
@@ -92,16 +97,12 @@ function ChatRoom() {
     setIsEditing(!IsEditing);
   };
 
-  const navigate = useNavigate();
-
   const RefreshTokenFunction = async () => {
     try {
-      const refreshToken = localStorage.getItem("RefreshToken"); // Retrieve fresh token
+      const refreshToken = localStorage.getItem("RefreshToken");
       const response = await axios.post(
         "http://localhost:3000/api/refresh-token",
-        { refreshToken },
-        {username}
-        
+        { refreshToken }
       );
   
       const newAccessToken = response.data.accessToken;
@@ -115,89 +116,55 @@ function ChatRoom() {
   };
 
   const handleDeleteChat = async () => {
-  if (window.confirm("You cannot retrieve a room after deleting it! Are you sure?")) {
+    if (window.confirm("You cannot retrieve a room after deleting it! Are you sure?")) {
+      const AccessToken = localStorage.getItem("AccessToken");
+      try {
+        await axios.post(
+          "http://localhost:3000/api/chat/delete",
+          { roomID, username },
+          {
+            headers: {
+              "Authorization": `Bearer ${AccessToken}`,
+            },
+          }
+        );
+        alert("Chat deleted successfully!");
+        navigate("/chat-gallery");
+      } catch (error) {
+        if (error.response?.status === 403) {
+          const newToken = await RefreshTokenFunction();
+          if (newToken) handleDeleteChat();
+      }
+    }
+  }
+  };
+
+  const changeRoomId = async () => {
+    if (editRoomId.length > 10) {
+      alert("Room name cannot exceed 10 characters.");
+      return;
+    }
     const AccessToken = localStorage.getItem("AccessToken");
     try {
       await axios.post(
-        "http://localhost:3000/api/chat/delete",
-        { roomID, username },
+        "http://localhost:3000/api/chat/set-name",
+        { roomID, roomName: editRoomId },
         {
           headers: {
             "Authorization": `Bearer ${AccessToken}`,
           },
         }
       );
-      alert("Chat deleted successfully!");
-      navigate("/chat-gallery");
+      alert("Room name updated successfully");
+      setRoomName(editRoomId);
+      setIsEditing(false);
     } catch (error) {
-      if (error.response) {
-        const status = error.response.status;
-        const errorMessage = error.response.data;
-
-        if (status === 401) {
-          console.error("Forbidden:", errorMessage);
-          alert("Access Denied: " + errorMessage);
-          // window.location.href = "/";
-        } else if (status === 403) {
-          console.error("Unauthorized: Token expired or invalid");
-          RefreshTokenFunction();
-          alert("Session expired. Please log in again.");
-          window.location.href = "/";
-        } else {
-          console.error("Error deleting room:", errorMessage);
-          alert("Failed to delete the room, please try again!");
-        }
-      } else {
-        console.error("Network error:", error.message);
+      if (error.response?.status === 403) {
+        const newToken = await RefreshTokenFunction();
+        if (newToken) changeRoomId();
       }
     }
-  }
-};
-
-const changeRoomId = async () => {
-  if (editRoomId.length > 10) {
-    alert("Room name cannot exceed 10 characters.");
-    return;
-  }
-  const AccessToken = localStorage.getItem("AccessToken");
-  try {
-    await axios.post(
-      "http://localhost:3000/api/chat/set-name",
-      { roomID, roomName: editRoomId },
-      {
-        headers: {
-          "Authorization": `Bearer ${AccessToken}`,
-        },
-      }
-    );
-    alert("Room name updated successfully");
-    setRoomName(editRoomId);
-    setIsEditing(false);
-  } catch (error) {
-    if (error.response) {
-      const status = error.response.status;
-      const errorMessage = error.response.data;
-
-      if (status === 401) {
-        console.error("Forbidden:", errorMessage);
-        alert("Access Denied: " + errorMessage);
-        // window.location.href = "/";
-      } else if (status === 403) {
-        console.error("Unauthorized: Token expired or invalid");
-        RefreshTokenFunction();
-        alert("Session expired. Please log in again.");
-        
-        // window.location.href = "/";
-      } else {
-        console.error("Error changing room name:", errorMessage);
-        alert("Failed to update the room name, please try again!");
-      }
-    } else {
-      console.error("Network error:", error.message);
-    }
-  }
-};
-
+  };
 
   return (
     <div className="chat-room">
@@ -235,7 +202,6 @@ const changeRoomId = async () => {
 
       <h3>Welcome, {username}</h3>
 
-      {/* Messages Container */}
       <div className="messages">
         {messages.map((msg, index) => (
           <div
@@ -248,7 +214,6 @@ const changeRoomId = async () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message Input & Send Button */}
       <div className="send-message">
         <input
           type="text"

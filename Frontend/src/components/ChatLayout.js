@@ -4,7 +4,13 @@ import ChatRoom from "./ChatRoom";
 import "../styles/ChatLayout.css";
 
 const ChatLayout = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const [selectedChat, setSelectedChat] = useState(null);
+
+  const handleChatSelect = (chat) => {
+    setSelectedChat(chat);
+    setIsOpen(false); // Close the menu when a chat is clicked
+  };
 
   return (
     <div className="chat-layout">
@@ -12,10 +18,10 @@ const ChatLayout = () => {
         ☰
       </button>
       <div className={`left-panel ${isOpen ? "open" : ""}`}>
-        <ChatGallery />
+        <ChatGallery onSelectChat={handleChatSelect} />
       </div>
       <div className="right-panel">
-        <ChatRoom />
+        <ChatRoom chat={selectedChat} />
       </div>
     </div>
   );
