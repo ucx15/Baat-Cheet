@@ -18,6 +18,9 @@ function ChatRoom() {
   const [roomName, setRoomName] = useState(initialRoomName);
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
+
+  const navigate = useNavigate(); // Make sure this line exists and is inside your component
+
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -85,6 +88,8 @@ function ChatRoom() {
   const handleEditField = () => {
     setIsEditing(!IsEditing);
   };
+
+  
 
   const RefreshTokenFunction = async () => {
     try {
