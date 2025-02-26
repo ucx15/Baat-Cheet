@@ -91,8 +91,8 @@ function ChatRoom() {
       const refreshToken = localStorage.getItem("RefreshToken");
       const response = await axios.post(
         "http://localhost:3000/api/refresh-token",
-        { refreshToken },
-        {username}
+        { refreshToken,username }
+        
         
       );
       const newAccessToken = response.data.accessToken;

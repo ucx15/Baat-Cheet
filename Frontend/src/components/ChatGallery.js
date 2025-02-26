@@ -47,8 +47,8 @@ function ChatGallery({ onSelectChat }) {
       const refreshToken = localStorage.getItem("RefreshToken"); // Retrieve fresh token
       const response = await axios.post(
         "http://localhost:3000/api/refresh-token",
-        { refreshToken },
-        {username}
+        { refreshToken,username }
+        
         
       );
   
