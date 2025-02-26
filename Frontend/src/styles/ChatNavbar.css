@@ -1,0 +1,17 @@
+/* Chat Navbar */
+.chat-navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    height: 60px;  /* Navbar ka fixed height */
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+  
