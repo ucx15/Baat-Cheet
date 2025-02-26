@@ -23,25 +23,6 @@ function ChatGallery({ onSelectChat }) {
     }
   }, [username]);
 
-
-  //   try {
-  //     const response = await axios.post(
-  //       "http://localhost:3000/api/fetch-user-rooms",
-  //       { username },
-  //       { headers: { "Content-Type": "application/json" , "Authorization":`Bearer ${"AccessToken"}`}}
-                
-  //     );
-
-  //     if (Array.isArray(response.data.rooms)) {
-  //       setChats(response.data.rooms);
-  //     } else {
-  //       setChats([]);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching chats:", error.response?.data || error.message);
-  //   }
-  // };
-
   const RefreshTokenFunction = async () => {
     try {
       const refreshToken = localStorage.getItem("RefreshToken"); // Retrieve fresh token
@@ -174,23 +155,6 @@ function ChatGallery({ onSelectChat }) {
     }
   };
   
-  //   if (!roomID) {
-  //     alert("Please enter a room ID to join.");
-  //     return;
-  //   }
-  //   try {
-  //     await axios.post("http://localhost:3000/api/chat/join", {
-  //       roomID,
-  //       username,
-        
-  //     });
-  //     navigate(`/chat/${roomID}`);
-  //     GetChats();
-  //   } catch (error) {
-  //     console.error("Error joining room:", error);
-  //     alert("Failed to join the room, please try again!");
-  //   }
-  // };
 
   return (
     <div className={styles.chatGallery}>

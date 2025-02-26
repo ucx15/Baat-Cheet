@@ -19,34 +19,18 @@ function ChatRoom() {
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
-  const navigate = useNavigate(); // Make sure this line exists and is inside your component
-
-  
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
       setUsername(storedUsername);
     }
+  }, []);
 
-    // const fetchOldMessages = async () => {
-    //   try {
-    //     const response = await axios.get(`http://localhost:3000/api/getMessages/${roomID}`);
-    //     setMessages(response.data);
-    //     scrollToBottom();
-    //   } catch (error) {
-    //     console.error("Error fetching messages:", error);
-    //   }
-    // };
-
-    // fetchOldMessages();
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    setRoomName(queryParams.get("roomName") || "");
   }, [roomID]);
 
   useEffect(() => {
@@ -59,12 +43,10 @@ function ChatRoom() {
 
     socket.on("room_messages", (messages) => {
       setMessages(messages);
-      scrollToBottom();
     });
 
     socket.on("receive_message", (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-      scrollToBottom();
     });
 
     return () => {
@@ -81,7 +63,6 @@ function ChatRoom() {
       socketRef.current.emit("send_message", messageData);
       setMessages((prevMessages) => [...prevMessages, messageData]);
       setNewMessage("");
-      scrollToBottom();
     }
   };
 
@@ -89,20 +70,13 @@ function ChatRoom() {
     setIsEditing(!IsEditing);
   };
 
-  
-
   const RefreshTokenFunction = async () => {
     try {
       const refreshToken = localStorage.getItem("RefreshToken");
-      const response = await axios.post(
-        "http://localhost:3000/api/refresh-token",
-        { refreshToken,username }
-        
-        
-      );
+      const response = await axios.post("http://localhost:3000/api/refresh-token", { refreshToken, username });
+
       const newAccessToken = response.data.accessToken;
       localStorage.setItem("AccessToken", newAccessToken);
-      console.log("Refreshed token:", newAccessToken);
       return newAccessToken;
     } catch (error) {
       console.error("Error refreshing token:", error.response?.data || error.message);
@@ -111,89 +85,68 @@ function ChatRoom() {
   };
 
   const handleDeleteChat = async () => {
-  if (window.confirm("You cannot retrieve a room after deleting it! Are you sure?")) {
+    if (window.confirm("You cannot retrieve a room after deleting it! Are you sure?")) {
+      const AccessToken = localStorage.getItem("AccessToken");
+      try {
+        await axios.post(
+          "http://localhost:3000/api/chat/delete",
+          { roomID, username },
+          {
+            headers: { Authorization: `Bearer ${AccessToken}` },
+          }
+        );
+        alert("Chat deleted successfully!");
+        navigate("/chat-gallery");
+      } catch (error) {
+        if (error.response) {
+          const status = error.response.status;
+          const errorMessage = error.response.data;
+          if (status === 401) {
+            alert("Access Denied: " + errorMessage);
+          } else if (status === 403) {
+            RefreshTokenFunction();
+            alert("Session expired. Please log in again.");
+            window.location.href = "/";
+          } else {
+            alert("Failed to delete the room, please try again!");
+          }
+        }
+      }
+    }
+  };
+
+  const changeRoomId = async () => {
+    if (editRoomId.length > 10) {
+      alert("Room name cannot exceed 10 characters.");
+      return;
+    }
     const AccessToken = localStorage.getItem("AccessToken");
     try {
       await axios.post(
-        "http://localhost:3000/api/chat/delete",
-        { roomID, username },
+        "http://localhost:3000/api/chat/set-name",
+        { roomID, roomName: editRoomId },
         {
-          headers: {
-            "Authorization": `Bearer ${AccessToken}`,
-          },
+          headers: { Authorization: `Bearer ${AccessToken}` },
         }
       );
-      alert("Chat deleted successfully!");
-      navigate("/chat-gallery");
+      alert("Room name updated successfully");
+      setRoomName(editRoomId);
+      setIsEditing(false);
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-
         if (status === 401) {
-          console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
-          // window.location.href = "/";
         } else if (status === 403) {
-          console.error("Unauthorized: Token expired or invalid");
           RefreshTokenFunction();
           alert("Session expired. Please log in again.");
-          window.location.href = "/";
         } else {
-          console.error("Error deleting room:", errorMessage);
-          alert("Failed to delete the room, please try again!");
+          alert("Failed to update the room name, please try again!");
         }
-      } else {
-        console.error("Network error:", error.message);
       }
     }
-  }
-};
-
-const changeRoomId = async () => {
-  if (editRoomId.length > 10) {
-    alert("Room name cannot exceed 10 characters.");
-    return;
-  }
-  const AccessToken = localStorage.getItem("AccessToken");
-  try {
-    await axios.post(
-      "http://localhost:3000/api/chat/set-name",
-      { roomID, roomName: editRoomId },
-      {
-        headers: {
-          "Authorization": `Bearer ${AccessToken}`,
-        },
-      }
-    );
-    alert("Room name updated successfully");
-    setRoomName(editRoomId);
-    setIsEditing(false);
-  } catch (error) {
-    if (error.response) {
-      const status = error.response.status;
-      const errorMessage = error.response.data;
-
-      if (status === 401) {
-        console.error("Forbidden:", errorMessage);
-        alert("Access Denied: " + errorMessage);
-        // window.location.href = "/";
-      } else if (status === 403) {
-        console.error("Unauthorized: Token expired or invalid");
-        RefreshTokenFunction();
-        alert("Session expired. Please log in again.");
-        
-        // window.location.href = "/";
-      } else {
-        console.error("Error changing room name:", errorMessage);
-        alert("Failed to update the room name, please try again!");
-      }
-    } else {
-      console.error("Network error:", error.message);
-    }
-  }
-};
-
+  };
 
   return (
     <div className="chat-room">
@@ -215,7 +168,9 @@ const changeRoomId = async () => {
                   }
                 }}
               />
-              <button className="edit-button" onClick={changeRoomId}>Save</button>
+              <button className="edit-button" onClick={changeRoomId}>
+                Save
+              </button>
             </>
           ) : (
             <button className="edit-button" onClick={handleEditField}>
@@ -233,10 +188,7 @@ const changeRoomId = async () => {
 
       <div className="messages">
         {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`message ${msg.username === username ? "my-message" : "other-message"}`}
-          >
+          <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>
             <strong>{msg.username}:</strong> {msg.message}
           </div>
         ))}
