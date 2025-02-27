@@ -32,16 +32,32 @@ function Login() {
         password,
       });
       
-      // setAccessToken(response.data.accessToken);
-      // setRefreshToken(response.data.refreshToken);
-
+      console.log("Data:",response.data);
+      // Store tokens
       localStorage.setItem("AccessToken", response.data.accessToken);
       localStorage.setItem("RefreshToken", response.data.refreshToken);
 
       
 
       localStorage.setItem("username", username);
+
       console.log("Stored Username:", localStorage.getItem("username")); // Debugging log
+
+      // Store Public Key from backend
+      if (response.data.publicKey) {
+        localStorage.setItem("PublicKey", response.data.publicKey);
+        console.log("Public Key stored:", response.data.publicKey);
+      } else {
+        console.warn("No Public Key received from server.");
+      }
+
+      // Retrieve Private Key from localStorage (should be stored on signup)
+      const privateKey = localStorage.getItem("PrivateKey");
+      if (privateKey) {
+        console.log("Private Key found in localStorage.");
+      } else {
+        console.warn("Private Key not found! User may need to restore it.");
+      }
 
       navigate("/chat-gallery"); // Redirect to Chat Gallery
     } catch (error) {

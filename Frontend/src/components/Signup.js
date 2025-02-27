@@ -12,7 +12,6 @@ function Signup() {
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    // Check if passwords match
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
@@ -25,14 +24,21 @@ function Signup() {
       const response = await axios.post("http://localhost:3000/api/signup", {
         username,
         password,
+        // publicKey: publicKeyBase64,
+        publicKey:"123",
       });
 
-      alert(response.data.message); // Show success message
-      navigate("/"); // Redirect to login page
+      alert(response.data.message);
+      navigate("/"); // Redirect to login
     } catch (error) {
       console.error("Error during signup:", error);
-      // alert("Error:",error); // Handle errors
     }
+  };
+
+  // Helper function to convert ArrayBuffer to Base64
+  const arrayBufferToBase64 = (buffer) => {
+    const uint8Array = new Uint8Array(buffer);
+    return btoa(String.fromCharCode.apply(null, uint8Array));
   };
 
   return (
@@ -70,5 +76,3 @@ function Signup() {
 }
 
 export default Signup;
-
-
