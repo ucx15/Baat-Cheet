@@ -19,7 +19,7 @@ function Signup() {
     }
 
     try {
-      
+
 
       // Send user data to the backend (hashed password)
       const response = await axios.post("http://localhost:3000/api/signup", {
@@ -32,6 +32,8 @@ function Signup() {
     } catch (error) {
       console.error("Error during signup:", error);
       // alert("Error:",error); // Handle errors
+      alert(error.response.data.message); // Show success message
+
     }
   };
 
