@@ -155,6 +155,14 @@ function ChatGallery({ onSelectChat }) {
     }
   };
   
+  const handleLogout = async () =>{
+    localStorage.removeItem('username');
+    localStorage.removeItem('RefreshToken');
+    localStorage.removeItem('AccessToken');
+    localStorage.removeItem('RefreshToken');
+    localStorage.removeItem('PublicKey')
+    navigate("/");
+  }
 
   return (
     <div className={styles.chatGallery}>
@@ -194,7 +202,12 @@ function ChatGallery({ onSelectChat }) {
           )}
         </div>
       </div>
+
+      <div className="Logout">
+        <button className={styles.LogoutBtn} onClick={handleLogout}> Logout</button>
+      </div>
     </div>
+    
   );
 }
 

@@ -108,6 +108,16 @@
   margin-top: 5px;
 }
 
+.LogoutBtn {
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
 /* No Chats Available */
 .noChats {
   text-align: center;
