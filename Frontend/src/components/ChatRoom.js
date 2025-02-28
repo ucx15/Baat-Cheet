@@ -5,6 +5,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 import "../styles/ChatRoom.css";
 
+const HOST = window.location.hostname;
+const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
+
 function ChatRoom() {
   const { roomID } = useParams();
   const queryParams = new URLSearchParams(window.location.search);
@@ -35,7 +38,7 @@ function ChatRoom() {
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:3000");
+      socketRef.current = io(`http://${BACKEND_URI}`);
     }
 
     const socket = socketRef.current;
@@ -73,7 +76,7 @@ function ChatRoom() {
   const RefreshTokenFunction = async () => {
     try {
       const refreshToken = localStorage.getItem("RefreshToken");
-      const response = await axios.post("http://localhost:3000/api/refresh-token", { refreshToken, username });
+      const response = await axios.post(`http://${BACKEND_URI}/api/refresh-token`, { refreshToken, username });
 
       const newAccessToken = response.data.accessToken;
       localStorage.setItem("AccessToken", newAccessToken);
@@ -89,7 +92,7 @@ function ChatRoom() {
       const AccessToken = localStorage.getItem("AccessToken");
       try {
         await axios.post(
-          "http://localhost:3000/api/chat/delete",
+          `http://${BACKEND_URI}/api/chat/delete`,
           { roomID, username },
           {
             headers: { Authorization: `Bearer ${AccessToken}` },
@@ -123,7 +126,7 @@ function ChatRoom() {
     const AccessToken = localStorage.getItem("AccessToken");
     try {
       await axios.post(
-        "http://localhost:3000/api/chat/set-name",
+        `http://${BACKEND_URI}/api/chat/set-name` ,
         { roomID, roomName: editRoomId },
         {
           headers: { Authorization: `Bearer ${AccessToken}` },

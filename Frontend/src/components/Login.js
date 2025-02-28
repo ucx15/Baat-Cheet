@@ -8,6 +8,8 @@ import { eyeOff } from "react-icons-kit/feather/eyeOff";
 import { eye } from "react-icons-kit/feather/eye";
 import "../styles/login.css";
 
+const HOST = window.location.hostname;
+const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -27,7 +29,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:3000/api/login", {
+      const response = await axios.post(`http://${BACKEND_URI}/api/login`, {
         username,
         password,
       });

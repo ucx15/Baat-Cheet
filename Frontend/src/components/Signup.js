@@ -3,6 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/signup.css";
 
+
+const HOST = window.location.hostname;
+const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
+
 function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +26,7 @@ function Signup() {
 
 
       // Send user data to the backend (hashed password)
-      const response = await axios.post("http://localhost:3000/api/signup", {
+      const response = await axios.post(`http://${BACKEND_URI}/api/signup`, {
         username,
         password,
       });
