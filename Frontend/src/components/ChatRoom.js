@@ -58,6 +58,14 @@ function ChatRoom() {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
+    socket.on("receive_file", (fileData) => {
+      const { data, type, format, username } = fileData;
+      const blob = new Blob([data], { type: `${type}/${format}` });
+      const url = URL.createObjectURL(blob);
+      
+      setMessages((prevMessages) => [...prevMessages, { username, file: url, type, format }]);
+    });
+
     return () => {
       socket.emit("leave_room", roomID);
       socket.disconnect();
