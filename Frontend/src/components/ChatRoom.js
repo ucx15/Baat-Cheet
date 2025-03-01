@@ -22,6 +22,8 @@ function ChatRoom() {
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
+  const [file,setFile] = useState([])
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -156,6 +158,29 @@ function ChatRoom() {
     }
   };
 
+  const sendFile = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+    reader.onload = async () => {
+      const binaryData = reader.result;
+      const fileType = file.type.split("/")[0];
+      const fileFormat = file.type.split("/")[1];
+
+      const fileData = {
+        data: binaryData,
+        type: fileType,
+        format: fileFormat,
+        sender: username,
+        roomID: roomID,
+      };
+
+      socketRef.current.emit("send_file", fileData);
+    };
+  };
+
   return (
     <div className="chat-room">
       <div className="room-header">
@@ -217,7 +242,14 @@ function ChatRoom() {
           }}
         />
         <button onClick={sendMessage}>Send</button>
+        <div className="send-file">
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+        <button onClick={sendFile}>Send File</button>
       </div>
+      </div>
+
+      
+
     </div>
   );
 }
