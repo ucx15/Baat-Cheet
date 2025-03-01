@@ -22,7 +22,6 @@ function ChatRoom() {
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
-  const [file,setFile] = useState([])
 
   const navigate = useNavigate();
 
@@ -158,28 +157,30 @@ function ChatRoom() {
     }
   };
 
-  const sendFile = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const [file, setFile] = useState(null);
 
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-    reader.onload = async () => {
-      const binaryData = reader.result;
-      const fileType = file.type.split("/")[0];
-      const fileFormat = file.type.split("/")[1];
+const sendFile = async () => {
+  if (!file) return; // Ensure a file is selected
 
-      const fileData = {
-        data: binaryData,
-        type: fileType,
-        format: fileFormat,
-        sender: username,
-        roomID: roomID,
-      };
+  const reader = new FileReader();
+  reader.readAsArrayBuffer(file);
+  reader.onload = async () => {
+    const binaryData = reader.result;
+    const fileType = file.type.split("/")[0];
+    const fileFormat = file.type.split("/")[1];
 
-      socketRef.current.emit("send_file", fileData);
+    const fileData = {
+      data: binaryData,
+      type: fileType,
+      format: fileFormat,
+      sender: username,
+      roomID: roomID,
     };
+    console.log("File send");
+    socketRef.current.emit("send_file", fileData);
   };
+};
+
 
   return (
     <div className="chat-room">
@@ -242,9 +243,10 @@ function ChatRoom() {
           }}
         />
         <button onClick={sendMessage}>Send</button>
+        
         <div className="send-file">
         <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-        <button onClick={sendFile}>Send File</button>
+       <button onClick={sendFile} disabled={!file}>Send File</button>
       </div>
       </div>
 
