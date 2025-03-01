@@ -77,6 +77,15 @@ io.on('connection', (socket) => {
 		socket.to(roomID).emit('receive_message', { username, message });
 	});
 
+	socket.on('send_file', async ({data, type, format, username, roomID}) => {
+
+		// TODO: Save the image to File System and location to the database
+		await RoomModel.addFileToRoom(data, type, format, username, roomID);
+
+		// Broadcast the message to everyone in the room
+		socket.to(roomID).emit('receive_file', { data, type, format, username });
+	})
+
 	// Handle disconnection
 	socket.on('disconnect', () => {
 		console.log(`WS:\tUser '${socket.id}' disconnected`);

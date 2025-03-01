@@ -95,5 +95,12 @@ const addMessageToRoom = async (roomID, username, message) => {
   );
 };
 
+const addFileToRoom = async (data, type, format, username, roomID) => {
+  // return await Room.findOneAndUpdate(
+  //  { roomID },
+  //  { $push: { messages: { username, data, type, format } } },
+  //  { new: true }
+  // );
+};
 
-module.exports = { Room, createRoom, deleteRoom, joinRoom, findRoom, findRoomsWithUser, getRoomIDs, getRoomNames, getRoomName, setRoomName, getRoomMessages, addMessageToRoom };
+module.exports = { Room, createRoom, deleteRoom, joinRoom, findRoom, findRoomsWithUser, getRoomIDs, getRoomNames, getRoomName, setRoomName, getRoomMessages, addMessageToRoom, addFileToRoom };
