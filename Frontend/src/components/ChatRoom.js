@@ -173,7 +173,7 @@ const sendFile = async () => {
       data: binaryData,
       type: fileType,
       format: fileFormat,
-      sender: username,
+      username: username,
       roomID: roomID,
     };
     console.log("File send");
