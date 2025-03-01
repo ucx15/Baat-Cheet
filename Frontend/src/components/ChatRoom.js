@@ -4,6 +4,8 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 import "../styles/ChatRoom.css";
+import { FaPhone, FaPhoneSlash } from "react-icons/fa"; 
+import Peer from "peerjs";
 
 const HOST = window.location.hostname;
 const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
@@ -68,6 +70,117 @@ function ChatRoom() {
       setNewMessage("");
     }
   };
+
+const [PeerID, setPeerID] = useState(null);
+const [remotePeerID, setRemotePeerID] = useState(null);
+const [isCalling, setIsCalling] = useState(false);
+
+const peerRef = useRef(null);
+const myVideoRef = useRef(null);
+const remoteVideoRef = useRef(null);
+const mediaStreamRef = useRef(null);
+
+
+  useEffect(() => {
+    if (!socketRef.current) {
+      socketRef.current = io(`http://${BACKEND_URI}`);
+    }
+  
+    peerRef.current = new Peer(undefined, {
+      host: BACKEND_URI,
+      port: 3000,
+      path: "/peerjs",
+      secure: false,
+    });
+  
+    peerRef.current.on("open", (id) => {
+      console.log("My Peer ID:", id);
+      setPeerID(id);  // Update state
+      socketRef.current.emit("peer_id", { roomID, PeerID: id });
+    });
+    
+    peerRef.current.on("call", (call) => {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+        mediaStreamRef.current = stream;
+        myVideoRef.current.srcObject = stream;
+        myVideoRef.current.play();
+        call.answer(stream);
+        call.on("stream", (remoteStream) => {
+          remoteVideoRef.current.srcObject = remoteStream;
+          remoteVideoRef.current.play();
+        });
+      });
+    });
+  
+    socketRef.current.on("incoming_call", ({ callerPeerID }) => {
+      console.log("Incoming call from:", callerPeerID);
+      setRemotePeerID(callerPeerID);
+      setIsCalling(true);
+    });
+    
+    socketRef.current.on("call_accepted", ({ roomID, signal, PeerID }) => {
+      console.log("Call accepted by:", PeerID);
+      peerRef.current.signal(signal);
+    });
+    
+    // Store current refs before cleanup
+    const peerInstance = peerRef.current;
+    console.log(peerInstance);
+    const socketInstance = socketRef.current;
+    console.log(socketInstance);
+  
+    return () => {
+      if (peerInstance) {
+        peerInstance.destroy();
+      }
+      if (socketInstance) {
+        socketInstance.disconnect();
+      }
+    };
+  }, [roomID]); // Keep dependencies minimal
+  
+  const startCall = () => {
+    const peerID = peerRef.current.id;
+    console.log(peerID);
+
+    if (!peerRef.current || !peerRef.current.id) {
+      console.error("❌ Peer ID is not available yet. Waiting...");
+      return;
+    }
+  
+      // Always get the latest ID
+  
+    console.log("Using PeerID:", peerID);
+  
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+      mediaStreamRef.current = stream;
+      myVideoRef.current.srcObject = stream;
+      myVideoRef.current.play();
+  
+      socketRef.current.emit("request_call", { roomID, callerPeerID: peerID });
+  
+      console.log("Started calling...");
+  
+      if (remotePeerID) {
+        console.log("Calling:", remotePeerID);
+        const call = peerRef.current.call(remotePeerID, stream);
+        call.on("stream", (remoteStream) => {
+          remoteVideoRef.current.srcObject = remoteStream;
+          remoteVideoRef.current.play();
+        });
+      }
+    }).catch(err => console.error("❌ Error accessing media devices:", err));
+  };
+   
+
+const endCall = () => {
+  if (mediaStreamRef.current) {
+    mediaStreamRef.current.getTracks().forEach(track => track.stop());
+  }
+  if (myVideoRef.current) myVideoRef.current.srcObject = null;
+  if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+  setIsCalling(false);
+};
 
   const handleEditField = () => {
     setIsEditing(!IsEditing);
@@ -184,11 +297,22 @@ function ChatRoom() {
           <button className="delete-button" onClick={handleDeleteChat}>
             Delete
           </button>
+
+          <button className="call-button" onClick={startCall}>
+              <FaPhone /> Start Call
+          </button>
+          <button className="end-call-button" onClick={endCall}>
+                <FaPhoneSlash /> End Call
+            </button>
         </div>
       </div>
 
       <h3>Welcome, {username}</h3>
 
+            <div className="video-container">
+              <video ref={myVideoRef} className="video" autoPlay muted />
+              <video ref={remoteVideoRef} className="video" autoPlay />
+            </div>
       <div className="messages">
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>
@@ -218,3 +342,4 @@ function ChatRoom() {
 }
 
 export default ChatRoom;
+

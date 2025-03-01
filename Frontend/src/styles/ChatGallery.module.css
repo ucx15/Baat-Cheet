@@ -147,3 +147,57 @@
     padding: 8px;
   }
 }
+
+.button-group-call {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.call-button, .end-call-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.call-button {
+  background-color: #28a745; /* Green */
+  color: white;
+}
+
+.call-button:hover {
+  background-color: #218838;
+}
+
+.end-call-button {
+  background-color: #dc3545; /* Red */
+  color: white;
+}
+
+.end-call-button:hover {
+  background-color: #c82333;
+}
+
+/* Video container styling */
+.video-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.video {
+  width: 45%;
+  max-width: 400px;
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  background: black;
+}

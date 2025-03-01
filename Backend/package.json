@@ -9,6 +9,8 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.1",
+    "peer": "^1.0.2",
+    "peerjs": "^1.5.4",
     "socket.io": "^4.8.1"
   },
   "name": "backend-baatcheet",
