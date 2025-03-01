@@ -16,7 +16,6 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 const MONGO_URI = process.env.MONGO_URI;
 
-
 const CORS_CONFIG = {
 	origin: '*',
 	methods: ['GET', 'POST'],
@@ -26,10 +25,10 @@ const CORS_CONFIG = {
 // Database Connection
 mongoose.connect(MONGO_URI)
 .then(() => {
-	console.log('DB: Connected to MongoDB Atlas');
+	console.log('✅ DB: Connected to MongoDB Atlas');
 })
 .catch((err) => {
-	console.error('ERROR: Cannot connect to Database:', err);
+	console.error('❌ ERROR: Cannot connect to Database:', err);
 });
 
 // Express Setup
@@ -41,21 +40,8 @@ app.use(express.json());
 app.use('/api', apiRoutes);
 app.use('/', defaultRoutes);
 
-// HTTP Server
+// HTTP Server for Express & Socket.io
 const server = http.createServer(app);
-
-// Attach PeerJS to Existing Server
-const peerServer = PeerServer({
-	server,  // Attach to your existing Express HTTP server
-	path: '/peerjs'
-});
-
-app.use("/peerjs", peerServer);
-// Start Server
-server.listen(PORT, () => {
-	console.log(`Backend running @ http://${HOST}:${PORT}`);
-	console.log(`Peer server is running @ http://${HOST}:${PORT}/peerjs`);
-});
 
 // Socket.io Server
 const io = new Server(server, { cors: CORS_CONFIG });
@@ -63,12 +49,12 @@ const io = new Server(server, { cors: CORS_CONFIG });
 const peers = {};
 
 io.on('connection', (socket) => {
-	console.log(`WS:\tUser '${socket.id}' connected`);
+	console.log(`WS: User '${socket.id}' connected`);
 
 	// Join a room
 	socket.on('join_room', async (roomID) => {
 		socket.join(roomID);
-		console.log(`WS:\tUser joined room '${roomID}'`);
+		console.log(`WS: User joined room '${roomID}'`);
 
 		// Fetch and send previous messages
 		const messages = await RoomModel.getRoomMessages(roomID);
@@ -77,10 +63,7 @@ io.on('connection', (socket) => {
 
 	// Send a message
 	socket.on('send_message', async ({ roomID, username, message }) => {
-		// Save the message to the database
 		await RoomModel.addMessageToRoom(roomID, username, message);
-
-		// Broadcast the message to everyone in the room
 		socket.to(roomID).emit('receive_message', { username, message });
 	});
 
@@ -104,6 +87,24 @@ io.on('connection', (socket) => {
 	// Handle disconnection
 	socket.on('disconnect', () => {
 		delete peers[socket.id];
-		console.log(`WS:\tUser '${socket.id}' disconnected`);
+		console.log(`WS: User '${socket.id}' disconnected`);
 	});
 });
+
+// Start Express Server
+server.listen(PORT, () => {
+	console.log(`🚀 Backend running @ http://${HOST}:${PORT}`);
+});
+
+// Separate PeerJS Server on Port 9000
+const peerServer = PeerServer({ port: 443, path: '/peerjs' });
+
+peerServer.on("connection", (client) => {
+	console.log(`🔗 Peer connected: ${client.id}`);
+});
+
+peerServer.on("disconnect", (client) => {
+	console.log(`❌ Peer disconnected: ${client.id}`);
+});
+
+console.log(`📡 Peer server running @ http://${HOST}:443/peerjs`);

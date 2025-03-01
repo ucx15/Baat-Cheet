@@ -85,19 +85,39 @@ const mediaStreamRef = useRef(null);
     if (!socketRef.current) {
       socketRef.current = io(`http://${BACKEND_URI}`);
     }
-  
+    
+    console.log(BACKEND_URI);
+
     peerRef.current = new Peer(undefined, {
-      host: BACKEND_URI,
-      port: 3000,
-      path: "/peerjs",
-      secure: false,
+      host: BACKEND_URI, // Change to your actual backend domain/IP
+      port: 443,  // Use port 443 for HTTPS
+      path: "/peerjs",  // Ensure this matches the backend path
+      secure: false,  // Must be true for HTTPS
+      debug: 3,  // Enable debugging
+      config: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" }, // Add a public STUN server
+        ],
+      },
     });
-  
+    
+    
+    console.log("peerRef",peerRef.current);
+
     peerRef.current.on("open", (id) => {
-      console.log("My Peer ID:", id);
-      setPeerID(id);  // Update state
-      socketRef.current.emit("peer_id", { roomID, PeerID: id });
+      console.log("✅ Peer connection successful! ID:", id);
     });
+    
+    peerRef.current.on("error", (err) => {
+      console.error("❌ Peer error:", err);
+    });
+    
+    
+    // peerRef.current.on("open", (id) => {
+    //   console.log("My Peer ID:", id);
+    //   setPeerID(id);  // Update state after Peer ID is available
+    //   socketRef.current.emit("peer_id", { roomID, PeerID: id });
+    // });
     
     peerRef.current.on("call", (call) => {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
@@ -125,9 +145,9 @@ const mediaStreamRef = useRef(null);
     
     // Store current refs before cleanup
     const peerInstance = peerRef.current;
-    console.log(peerInstance);
+    // console.log(peerInstance);
     const socketInstance = socketRef.current;
-    console.log(socketInstance);
+    // console.log(socketInstance);
   
     return () => {
       if (peerInstance) {
@@ -140,8 +160,10 @@ const mediaStreamRef = useRef(null);
   }, [roomID]); // Keep dependencies minimal
   
   const startCall = () => {
-    const peerID = peerRef.current.id;
-    console.log(peerID);
+    console.log(peerRef.current);
+    console.log(peerRef.current.id);
+    const PeerID = peerRef.current.id;
+    console.log(PeerID);
 
     if (!peerRef.current || !peerRef.current.id) {
       console.error("❌ Peer ID is not available yet. Waiting...");
@@ -150,14 +172,14 @@ const mediaStreamRef = useRef(null);
   
       // Always get the latest ID
   
-    console.log("Using PeerID:", peerID);
+    console.log("Using PeerID:", PeerID);
   
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
       mediaStreamRef.current = stream;
       myVideoRef.current.srcObject = stream;
       myVideoRef.current.play();
   
-      socketRef.current.emit("request_call", { roomID, callerPeerID: peerID });
+      socketRef.current.emit("request_call", { roomID, callerPeerID: PeerID });
   
       console.log("Started calling...");
   
