@@ -25,6 +25,11 @@ function ChatRoom() {
   const navigate = useNavigate();
 
   useEffect(() => {
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [messages]);
+
+
+  useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
       setUsername(storedUsername);
