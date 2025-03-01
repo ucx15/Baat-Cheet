@@ -186,6 +186,7 @@ const sendFile = async () => {
     };
     console.log("File send");
     socketRef.current.emit("send_file", fileData);
+    setFile(null);
   };
 };
 
