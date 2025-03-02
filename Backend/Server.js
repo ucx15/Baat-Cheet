@@ -53,7 +53,12 @@ server.listen(PORT, () => {
 
 
 // Socket.io Server
-const io = new Server(server, { cors: CORS_CONFIG });
+const io = new Server(
+	server,
+	{
+		cors: CORS_CONFIG,
+		maxHttpBufferSize: 1e8 // 100 MB
+	});
 
 io.on('connection', (socket) => {
 	console.log(`WS:\tUser '${socket.id}' connected`);
@@ -68,8 +73,13 @@ io.on('connection', (socket) => {
 		socket.emit('room_messages', messages);
 	});
 
+	// TODO: send callback acknowledgements
+
 	// Send a message
 	socket.on('send_message', async ({ roomID, username, message }) => {
+		// Acknowledgement
+		// callback({ status: 'success' });
+
 		// Save the message to the database
 		await RoomModel.addMessageToRoom(roomID, username, message);
 
@@ -78,6 +88,10 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('send_file', async ({data, type, format, username, roomID}) => {
+		// Acknowledgement
+		// callback({ status: 'success' });
+
+		console.log('WS:\tReceived file from', username);
 
 		// TODO: Save the image to File System and location to the database
 		await RoomModel.addFileToRoom(data, type, format, username, roomID);
