@@ -124,3 +124,26 @@
     background: #3e8e41;
   }
   
+  .emoji {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.emoji button {
+    font-size: 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.emoji-picker {
+    position: absolute;
+    bottom: 40px; /* Adjust this value as needed */
+    left: 0;
+    background: #2c2c3e;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+

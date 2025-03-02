@@ -3,6 +3,8 @@ import io from "socket.io-client";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 import "../styles/ChatRoom.css";
 
 const HOST = window.location.hostname;
@@ -19,10 +21,10 @@ function ChatRoom() {
   const [editRoomId, seteditRoomId] = useState("");
   const [IsEditing, setIsEditing] = useState(false);
   const [roomName, setRoomName] = useState(initialRoomName);
+  const [file, setFile] = useState(null);
+  const [showPicker, setShowPicker] = useState(false);
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
-
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -165,7 +167,7 @@ function ChatRoom() {
     }
   };
 
-  const [file, setFile] = useState(null);
+
 
 const sendFile = async () => {
   if (!file) return; // Ensure a file is selected
@@ -254,6 +256,28 @@ const sendFile = async () => {
 
 
     <div className="send-message">
+
+    <div className="emoji">
+    <button onClick={() => setShowPicker(!showPicker)}>😀</button>
+    {showPicker && (
+      <div className="emoji-picker">
+        <Picker
+          data={data}
+          onEmojiSelect={(emoji) => {
+            setNewMessage((prev) => prev + emoji.native);
+            setShowPicker(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+            }
+          }}
+          />
+      </div>
+    )}
+  </div>
+
   <input
     type="text"
     placeholder="Type your message or select a file"
