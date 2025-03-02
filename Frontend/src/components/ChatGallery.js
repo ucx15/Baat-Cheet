@@ -133,6 +133,7 @@ function ChatGallery({ onSelectChat }) {
       );
   
       navigate(`/chat/${roomID}`);
+      
       GetChats();
     } catch (error) {
       if (error.response) {
@@ -184,7 +185,16 @@ function ChatGallery({ onSelectChat }) {
             onChange={(e) => setRoomID(e.target.value)}
             className={styles.inputField}
           />
-          <button className={styles.joinBtn} onClick={JoinRoom}>Join a Room</button>
+          <button
+              className={styles.joinBtn}
+               onClick={() => {
+                JoinRoom(); // Call JoinRoom function
+               if (roomID) {
+                onSelectChat({ roomID }); // Call onSelectChat with the roomID
+              }
+            }}
+          >
+                Join a Room</button>
         </div>
         <h3 className={styles.subHeading}>Your Chats</h3>
         <div className={styles.chatList}>
