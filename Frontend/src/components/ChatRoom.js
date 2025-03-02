@@ -177,6 +177,11 @@ const sendFile = async () => {
     const fileType = file.type.split("/")[0];
     const fileFormat = file.type.split("/")[1];
 
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { username, file: URL.createObjectURL(file), type: fileType, format: fileFormat }
+    ]);
+
     const fileData = {
       data: binaryData,
       type: fileType,
@@ -230,36 +235,65 @@ const sendFile = async () => {
       <h3>Welcome, {username}</h3>
 
       <div className="messages">
-        {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>
-            <strong>{msg.username}:</strong> {msg.message}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
+  {messages.map((msg, index) => (
+    <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>
+      <strong>{msg.username}:</strong> 
+      {msg.file ? (
+        msg.type === "image" ? (
+          <img src={msg.file} alt="Sent File" style={{ maxWidth: "200px", borderRadius: "5px" }} />
+        ) : (
+          <a href={msg.file} download>📄 {msg.format.toUpperCase()} File</a>
+        )
+      ) : (
+        msg.message
+      )}
+    </div>
+  ))}
+  <div ref={messagesEndRef} />
+</div>
 
-      <div className="send-message">
-        <input
-          type="text"
-          placeholder="Type your message"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              sendMessage();
-            }
-          }}
-        />
-        <button onClick={sendMessage}>Send</button>
-        
-        <div className="send-file">
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-       <button onClick={sendFile} disabled={!file}>Send File</button>
-      </div>
-      </div>
 
-      
+    <div className="send-message">
+  <input
+    type="text"
+    placeholder="Type your message or select a file"
+    value={file ? file.name : newMessage} // Show file name if selected
+    onChange={(e) => setNewMessage(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (file) {
+          sendFile();
+        } else {
+          sendMessage();
+        }
+      }
+    }}
+  />
+
+  <input
+    type="file"
+    onChange={(e) => setFile(e.target.files[0])}
+    style={{ display: "none" }}
+    id="file-input" // ✅ Corrected ID
+  />
+  <button onClick={() => document.getElementById("file-input").click()}>
+    📂
+  </button>
+
+  <button
+    onClick={() => {
+      if (file) {
+        sendFile();
+      } else {
+        sendMessage();
+      }
+    }}
+  >
+    Send
+  </button>
+    </div>
+
 
     </div>
   );
