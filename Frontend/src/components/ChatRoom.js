@@ -26,6 +26,15 @@ function ChatRoom() {
 
   const navigate = useNavigate();
 
+  const [PeerID, setPeerID] = useState(null);
+  const [remotePeerID, setRemotePeerID] = useState(null);
+  const [isCalling, setIsCalling] = useState(false);
+
+  const peerRef = useRef(null);
+  const myVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
@@ -61,25 +70,6 @@ function ChatRoom() {
     };
   }, [roomID]);
 
-  const sendMessage = () => {
-    if (newMessage.trim()) {
-      const messageData = { roomID, username, message: newMessage };
-
-      socketRef.current.emit("send_message", messageData);
-      setMessages((prevMessages) => [...prevMessages, messageData]);
-      setNewMessage("");
-    }
-  };
-
-const [PeerID, setPeerID] = useState(null);
-const [remotePeerID, setRemotePeerID] = useState(null);
-const [isCalling, setIsCalling] = useState(false);
-
-const peerRef = useRef(null);
-const myVideoRef = useRef(null);
-const remoteVideoRef = useRef(null);
-const mediaStreamRef = useRef(null);
-
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -89,9 +79,9 @@ const mediaStreamRef = useRef(null);
     console.log(BACKEND_URI);
 
     peerRef.current = new Peer(undefined, {
-      host: BACKEND_URI, // Change to your actual backend domain/IP
-      port: 443,  // Use port 443 for HTTPS
-      path: "/peerjs",  // Ensure this matches the backend path
+      host: "localhost",  // Change to your actual backend domain/IP
+      port: 9000,  // Use port 443 for HTTPS
+      path: "/",  // Ensure this matches the backend path
       secure: false,  // Must be true for HTTPS
       debug: 3,  // Enable debugging
       config: {
@@ -104,44 +94,72 @@ const mediaStreamRef = useRef(null);
     
     console.log("peerRef",peerRef.current);
 
+    
     peerRef.current.on("open", (id) => {
-      console.log("✅ Peer connection successful! ID:", id);
+      console.log("My Peer ID:", id);
+      setPeerID(id);  // Update state after Peer ID is available
+      socketRef.current.emit("peer_id", { roomID, PeerID: id });
     });
     
+
     peerRef.current.on("error", (err) => {
       console.error("❌ Peer error:", err);
     });
     
     
-    // peerRef.current.on("open", (id) => {
-    //   console.log("My Peer ID:", id);
-    //   setPeerID(id);  // Update state after Peer ID is available
-    //   socketRef.current.emit("peer_id", { roomID, PeerID: id });
-    // });
-    
+
     peerRef.current.on("call", (call) => {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-        mediaStreamRef.current = stream;
-        myVideoRef.current.srcObject = stream;
-        myVideoRef.current.play();
-        call.answer(stream);
-        call.on("stream", (remoteStream) => {
-          remoteVideoRef.current.srcObject = remoteStream;
-          remoteVideoRef.current.play();
-        });
-      });
-    });
-  
-    socketRef.current.on("incoming_call", ({ callerPeerID }) => {
-      console.log("Incoming call from:", callerPeerID);
-      setRemotePeerID(callerPeerID);
-      setIsCalling(true);
+      console.log("📞 Incoming call from:", call.peer);
+    
+      // Prompt user to accept or reject the call
+      if (window.confirm(`Incoming call from ${call.peer}. Accept?`)) {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+          .then((stream) => {
+            mediaStreamRef.current = stream;
+    
+            // Play local video
+            myVideoRef.current.srcObject = stream;
+            myVideoRef.current.play();
+    
+            // Answer the call with our stream
+            call.answer(stream);
+    
+            // Listen for the remote stream
+            call.on("stream", (remoteStream) => {
+              console.log("✅ Remote stream received!");
+              remoteVideoRef.current.srcObject = remoteStream;
+              remoteVideoRef.current.play();
+            });
+          })
+          .catch((error) => {
+            console.error("❌ Error accessing media devices:", error);
+          });
+      } else {
+        console.log("❌ Call rejected");
+      }
     });
     
-    socketRef.current.on("call_accepted", ({ roomID, signal, PeerID }) => {
-      console.log("Call accepted by:", PeerID);
-      peerRef.current.signal(signal);
-    });
+  
+   socketRef.current.on("incoming_call", ({ callerPeerID }) => {
+  console.log("📞 Incoming call from:", callerPeerID);
+
+  // Store the caller ID and show UI buttons
+  setRemotePeerID(callerPeerID);
+  setIsCalling(true); // This will show a UI button
+});
+
+
+    
+    socketRef.current.on("call_accepted", ({ PeerID }) => {
+  console.log("✅ Call accepted by:", PeerID);
+  
+  // Establish a direct connection
+  const conn = peerRef.current.connect(PeerID);
+  conn.on("open", () => {
+    console.log("🔗 Connection opened with", PeerID);
+  });
+});
+
     
     // Store current refs before cleanup
     const peerInstance = peerRef.current;
@@ -159,6 +177,17 @@ const mediaStreamRef = useRef(null);
     };
   }, [roomID]); // Keep dependencies minimal
   
+  
+  const sendMessage = () => {
+    if (newMessage.trim()) {
+      const messageData = { roomID, username, message: newMessage };
+
+      socketRef.current.emit("send_message", messageData);
+      setMessages((prevMessages) => [...prevMessages, messageData]);
+      setNewMessage("");
+    }
+  };
+
   const startCall = () => {
     console.log(peerRef.current);
     console.log(peerRef.current.id);
@@ -203,6 +232,33 @@ const endCall = () => {
   if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
   setIsCalling(false);
 };
+
+const acceptCall = (callerPeerID) => {
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then((stream) => {
+      mediaStreamRef.current = stream;
+      myVideoRef.current.srcObject = stream;
+      myVideoRef.current.play();
+
+      // Answer the call
+      const call = peerRef.current.call(callerPeerID, stream);
+      call.on("stream", (remoteStream) => {
+        remoteVideoRef.current.srcObject = remoteStream;
+        remoteVideoRef.current.play();
+      });
+
+      setIsCalling(false); // Hide the popup
+    })
+    .catch((error) => {
+      console.error("❌ Error accessing media devices:", error);
+    });
+};
+
+const rejectCall = () => {
+  console.log("❌ Call rejected");
+  setIsCalling(false); // Hide the popup
+};
+
 
   const handleEditField = () => {
     setIsEditing(!IsEditing);
@@ -335,6 +391,15 @@ const endCall = () => {
               <video ref={myVideoRef} className="video" autoPlay muted />
               <video ref={remoteVideoRef} className="video" autoPlay />
             </div>
+
+            {isCalling && (
+  <div className="incoming-call-popup">
+    <p>📞 Incoming call from {remotePeerID}</p>
+    <button onClick={() => acceptCall(remotePeerID)}>Accept</button>
+    <button onClick={rejectCall}>Reject</button>
+  </div>
+)}
+
       <div className="messages">
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>
@@ -364,4 +429,3 @@ const endCall = () => {
 }
 
 export default ChatRoom;
-

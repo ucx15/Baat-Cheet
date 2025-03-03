@@ -97,7 +97,7 @@ server.listen(PORT, () => {
 });
 
 // Separate PeerJS Server on Port 9000
-const peerServer = PeerServer({ port: 443, path: '/peerjs' });
+const peerServer = PeerServer({ port: 9000, path: '/' });
 
 peerServer.on("connection", (client) => {
 	console.log(`🔗 Peer connected: ${client.id}`);
@@ -107,4 +107,4 @@ peerServer.on("disconnect", (client) => {
 	console.log(`❌ Peer disconnected: ${client.id}`);
 });
 
-console.log(`📡 Peer server running @ http://${HOST}:443/peerjs`);
+console.log(`📡 Peer server running @ http://${HOST}:9000/peerjs`);
