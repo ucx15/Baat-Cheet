@@ -35,7 +35,7 @@
 
 /* Create button styles */
 .createBtn {
-  background: #4caf50;
+    background: hsl(120, 45%, 40%);
   color: white;
 }
 
@@ -62,7 +62,7 @@
 
 /* Join button */
 .joinBtn {
-  background-color: #007bff;
+  background-color: hsl(211, 100%, 50%);
   color: white;
   white-space: nowrap;
 }
@@ -83,7 +83,7 @@
   padding: 10px;
   border-radius: 1em;
   border: .1em solid #aaaaaa00;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
   transition: all 0.2s ease;
 }
 
@@ -123,7 +123,7 @@
 
 
 .LogoutBtn {
-  background: #ff001c;
+  background: hsl(5, 90%, 40%);
   color: white;
   width: 50%;
   border: none;
@@ -131,6 +131,11 @@
   cursor: pointer;
   transition: background 0.3s ease;
 }
+
+.LogoutBtn:hover {
+background-color: hsl(0, 100%, 35%);
+}
+
 
 /* No Chats Available */
 .noChats {

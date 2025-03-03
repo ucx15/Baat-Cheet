@@ -32,7 +32,7 @@ function ChatGallery({ onSelectChat }) {
       const refreshToken = localStorage.getItem("RefreshToken"); // Retrieve fresh token
       const response = await axios.post(
         `http://${BACKEND_URI}/api/refresh-token`,
-        { refreshToken,username }
+        { refreshToken, username }
 
 
       );
@@ -160,7 +160,7 @@ function ChatGallery({ onSelectChat }) {
     }
   };
 
-  const handleLogout = async () =>{
+  const handleLogout = async () => {
     localStorage.removeItem('username');
     localStorage.removeItem('RefreshToken');
     localStorage.removeItem('AccessToken');
@@ -186,30 +186,30 @@ function ChatGallery({ onSelectChat }) {
             className={styles.inputField}
           />
           <button
-              className={styles.joinBtn}
-               onClick={() => {
-                JoinRoom(); // Call JoinRoom function
-               if (roomID) {
+            className={styles.joinBtn}
+            onClick={() => {
+              JoinRoom(); // Call JoinRoom function
+              if (roomID) {
                 onSelectChat({ roomID }); // Call onSelectChat with the roomID
               }
             }}
           >
-                Join a Room</button>
+            Join a Room</button>
         </div>
         <h3 className={styles.subHeading}>Your Chats</h3>
         <div className={styles.chatList}>
           {chats.length > 0 ? (
             chats.map((chat) => (
-              <div key={chat.roomID} className={styles.chatRoom}>
-                <Link
-                  to={`/chat/${chat.roomID}?roomName=${chat.roomName}`}
-                  className={styles.chatLink}
-                  onClick={() => onSelectChat(chat)}
-                >
+              <Link
+                to={`/chat/${chat.roomID}?roomName=${chat.roomName}`}
+                className={styles.chatLink}
+                onClick={() => onSelectChat(chat)}
+              >
+                <div key={chat.roomID} className={styles.chatRoom}>
                   {chat.roomName ? `Room: ${chat.roomName}` : `Room ID: ${chat.roomID}`}
-                </Link>
-                <p className={styles.users}>{chat.users.join(", ")}</p>
-              </div>
+                  <p className={styles.users}>{chat.users.join(", ")}</p>
+                </div>
+              </Link>
             ))
           ) : (
             <p className={styles.noChats}>No chats available</p>

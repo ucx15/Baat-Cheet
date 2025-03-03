@@ -8,7 +8,7 @@ import data from "@emoji-mart/data";
 import "../styles/ChatRoom.css";
 
 const HOST = window.location.hostname;
-const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
+const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST;
 
 function ChatRoom() {
   const { roomID } = useParams();
@@ -64,7 +64,7 @@ function ChatRoom() {
       const { data, type, format, username } = fileData;
       const blob = new Blob([data], { type: `${type}/${format}` });
       const url = URL.createObjectURL(blob);
-      
+
       setMessages((prevMessages) => [...prevMessages, { username, file: url, type, format }]);
     });
 
@@ -239,7 +239,7 @@ const sendFile = async () => {
       <div className="messages">
   {messages.map((msg, index) => (
     <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>
-      <strong>{msg.username}:</strong> 
+      <strong>{msg.username}:</strong>
       {msg.file ? (
         msg.type === "image" ? (
           <img src={msg.file} alt="Sent File" style={{ maxWidth: "200px", borderRadius: "5px" }} />
@@ -301,11 +301,13 @@ const sendFile = async () => {
     style={{ display: "none" }}
     id="file-input" // ✅ Corrected ID
   />
-  <button onClick={() => document.getElementById("file-input").click()}>
+
+  <button className="fileSendBtn" onClick={() => document.getElementById("file-input").click()}>
     📂
   </button>
 
   <button
+  className="sendBtn"
     onClick={() => {
       if (file) {
         sendFile();
