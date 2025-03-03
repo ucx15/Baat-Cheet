@@ -5,7 +5,7 @@ import styles from "../styles/ChatGallery.module.css";
 
 
 const HOST = window.location.hostname;
-const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
+const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST;
 
 function ChatGallery({ onSelectChat }) {
   const [chats, setChats] = useState([]);
@@ -33,10 +33,10 @@ function ChatGallery({ onSelectChat }) {
       const response = await axios.post(
         `http://${BACKEND_URI}/api/refresh-token`,
         { refreshToken,username }
-        
-        
+
+
       );
-  
+
       const newAccessToken = response.data.accessToken;
       localStorage.setItem("AccessToken", newAccessToken);
       return newAccessToken;
@@ -54,13 +54,13 @@ function ChatGallery({ onSelectChat }) {
         { username },
         { headers: { Authorization: `Bearer ${AccessToken}` } }
       );
-  
+
       setChats(Array.isArray(response.data.rooms) ? response.data.rooms : []);
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-  
+
         if (status === 401) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
@@ -83,7 +83,7 @@ function ChatGallery({ onSelectChat }) {
   const CreateUniqueID = async () => {
     const uniqueID = Math.random().toString(36).substr(2, 9);
     setRoomID(uniqueID);
-  
+
     try {
       const AccessToken = localStorage.getItem("AccessToken");
       await axios.post(`http://${BACKEND_URI}/api/chat/create`, { roomID: uniqueID, username }, {
@@ -93,7 +93,7 @@ function ChatGallery({ onSelectChat }) {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-  
+
         if (status === 401) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
@@ -119,7 +119,7 @@ function ChatGallery({ onSelectChat }) {
       alert("Please enter a room ID to join.");
       return;
     }
-  
+
     try {
       const AccessToken = localStorage.getItem("AccessToken");
       await axios.post(
@@ -131,15 +131,15 @@ function ChatGallery({ onSelectChat }) {
           }
         }
       );
-  
+
       navigate(`/chat/${roomID}`);
-      
+
       GetChats();
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-  
+
         if (status === 403) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
@@ -147,7 +147,7 @@ function ChatGallery({ onSelectChat }) {
         } else if (status === 401) {
           console.error("Unauthorized: Token expired or invalid");
           const newToken = await RefreshTokenFunction();
-          if (newToken) JoinRoom(); 
+          if (newToken) JoinRoom();
           else alert("Session expired. Please log in again.");
           // window.location.href = "/";
         } else {
@@ -159,7 +159,7 @@ function ChatGallery({ onSelectChat }) {
       }
     }
   };
-  
+
   const handleLogout = async () =>{
     localStorage.removeItem('username');
     localStorage.removeItem('RefreshToken');
@@ -217,11 +217,11 @@ function ChatGallery({ onSelectChat }) {
         </div>
       </div>
 
-      <div className="Logout">
+      <div className={styles.Logout}>
         <button className={styles.LogoutBtn} onClick={handleLogout}> Logout</button>
       </div>
     </div>
-    
+
   );
 }
 
