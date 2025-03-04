@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/ChatGallery.module.css";
+import  ChatNavbar  from "./ChatNavbar";
 
 
 const HOST = window.location.hostname;
@@ -171,7 +172,8 @@ function ChatGallery({ onSelectChat }) {
 
   return (
     <div className={styles.chatGallery}>
-      <h2 className={styles.heading}>Welcome, {username || "Guest"}!</h2>
+      {<ChatNavbar/>}
+      <div className={styles.heading}>Welcome, {username || "Guest"}!</div>
       <div className={styles.menu}>
         <button className={styles.createBtn} onClick={CreateUniqueID}>
           Create a Chat Room

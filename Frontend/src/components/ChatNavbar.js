@@ -5,7 +5,7 @@ function ChatNavbar() {
 
   return (
     <nav className="chat-navbar">
-      <h2>Baat Cheet</h2>
+      Baat Cheet
     </nav>
   );
 }

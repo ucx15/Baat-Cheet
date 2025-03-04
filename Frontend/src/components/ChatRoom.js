@@ -234,8 +234,6 @@ const sendFile = async () => {
         </div>
       </div>
 
-      <h3>Welcome, {username}</h3>
-
       <div className="messages">
   {messages.map((msg, index) => (
     <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>

@@ -1,36 +1,41 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .chat-layout {
   display: flex;
+  flex-direction: column;
+
   height: 100vh;
-  overflow: hidden;
-  position: relative;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  /* min-height: 100vh; */
+  height: 100vh;
 }
 
 /* Left Panel (Chat Gallery) */
 .left-panel {
-  width: 30%;
-  color: white;
-  overflow-y: auto;
-  border-right: 1px solid #202c33;
-  transition: transform 0.3s ease-in-out;
-  max-height: 100%;
+  width: 20rem;
+  /* border-right: .1em solid #666; */
+  transition: transform 0.2s ease-in-out;
 }
 
 /* Right Panel (Chat Room) */
 .right-panel {
   flex-grow: 1;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  max-height: 100%;
-  margin-top: 60px; /* Navbar ke space ke liye */
 }
 
 /* Hamburger Button */
 .menu-btn {
   display: none;
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 0;
+  left: 0;
   background: none;
   border: none;
   font-size: 24px;
@@ -62,4 +67,3 @@
     width: 100%;
   }
 }
-

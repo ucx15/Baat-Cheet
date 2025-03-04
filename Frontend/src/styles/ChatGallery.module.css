@@ -1,22 +1,18 @@
 .chatGallery {
-  /* max-width: 500px; */
-  padding: 20px;
-  background-color: #080808;
-  color: white;
-  /* border-radius: 12px; */
-  /* box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); */
-  min-height: 100%;
-  /* overflow-y: auto; */
-  position: relative ;
+  flex: 1;
 
+  padding: .8em;
+  background-color: #080808;
+  overflow-y: scroll;
+  height: 100%;
 }
 
 /* Center the heading and improve spacing */
 .heading {
   text-align: center;
-  font-size: 24px;
+  font-size: 1.4rem;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin: .4em 0;
 }
 
 /* Buttons - consistent styling */
@@ -74,8 +70,6 @@
 /* Chat List Styles */
 .chatList {
   margin-top: 20px;
-  max-height: 100%;
-  /* overflow-y: auto; */
 }
 
 /* Individual Chat Room */
@@ -111,13 +105,16 @@
 }
 
 .Logout {
-  position: sticky;
+  position: relative;
   bottom: 0;
+  left: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
 
-  /* flex-grow: 1; */
+
+  width: 100%;
   /* height: 10rem; */
 }
 

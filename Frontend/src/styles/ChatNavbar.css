@@ -1,19 +1,17 @@
 /* Chat Navbar */
 .chat-navbar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* background-color: #007bff; */
-    background: linear-gradient(90deg, hsla(0, 0%, 0%, 0), hsla(211, 100%, 50%, 0.348));
-    backdrop-filter: blur(1em);
-    color: white;
-    padding: 10px;
-    font-size: 24px;
-    font-weight: bold;
-    height: 60px;  /* Navbar ka fixed height */
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
+  width: 100%;
+  min-height: 9vh;
+
+  /* background: linear-gradient(90deg, hsla(0, 0%, 0%, 0), hsla(211, 100%, 50%, 0.348)); */
+  /* backdrop-filter: blur(1em); */
+
+  /* padding: .2em 0; */
+  font-size: 2.4rem;
+
+  font-weight: bold;
+}
