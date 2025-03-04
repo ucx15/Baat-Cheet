@@ -4,13 +4,11 @@ import axios, { isAxiosError } from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 import "../styles/ChatRoom.css";
-import { FaPhone, FaPhoneSlash } from "react-icons/fa"; 
+import { FaPhone, FaPhoneSlash } from "react-icons/fa";
 import Peer from "peerjs";
 
 import leoProfanity from "leo-profanity";
-
-const HOST = window.location.hostname;
-const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
+import { BACKEND_URI } from "../config";
 
 function ChatRoom() {
   const { roomID } = useParams();
@@ -38,7 +36,7 @@ function ChatRoom() {
   const remoteVideoRef = useRef(null);
   const mediaStreamRef = useRef(null);
 
- 
+
 
 
   useEffect(() => {
@@ -62,7 +60,7 @@ function ChatRoom() {
   //     return () => clearTimeout(timer);
   //   }
   // }, [isAnonymous]);
-  
+
 
   useEffect(() => {
 
@@ -93,7 +91,7 @@ function ChatRoom() {
     if (!socketRef.current) {
       socketRef.current = io(`http://${BACKEND_URI}`);
     }
-    
+
     console.log(BACKEND_URI);
 
     peerRef.current = new Peer(undefined, {
@@ -108,40 +106,40 @@ function ChatRoom() {
         ],
       },
     });
-    
-    
+
+
     console.log("peerRef",peerRef.current);
 
-    
+
     peerRef.current.on("open", (id) => {
       console.log("My Peer ID:", id);
       setPeerID(id);  // Update state after Peer ID is available
       socketRef.current.emit("peer_id", { roomID, PeerID: id });
     });
-    
+
 
     peerRef.current.on("error", (err) => {
       console.error("❌ Peer error:", err);
     });
-    
-    
+
+
 
     peerRef.current.on("call", (call) => {
       console.log("📞 Incoming call from:", call.peer);
-    
+
       // Prompt user to accept or reject the call
       if (window.confirm(`Incoming call from ${call.peer}. Accept?`)) {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true })
           .then((stream) => {
             mediaStreamRef.current = stream;
-    
+
             // Play local video
             myVideoRef.current.srcObject = stream;
             myVideoRef.current.play();
-    
+
             // Answer the call with our stream
             call.answer(stream);
-    
+
             // Listen for the remote stream
             call.on("stream", (remoteStream) => {
               console.log("✅ Remote stream received!");
@@ -156,8 +154,8 @@ function ChatRoom() {
         console.log("❌ Call rejected");
       }
     });
-    
-  
+
+
    socketRef.current.on("incoming_call", ({ callerPeerID }) => {
   console.log("📞 Incoming call from:", callerPeerID);
 
@@ -167,10 +165,10 @@ function ChatRoom() {
 });
 
 
-    
+
     socketRef.current.on("call_accepted", ({ PeerID }) => {
   console.log("✅ Call accepted by:", PeerID);
-  
+
   // Establish a direct connection
   const conn = peerRef.current.connect(PeerID);
   conn.on("open", () => {
@@ -178,13 +176,13 @@ function ChatRoom() {
   });
 });
 
-    
+
     // Store current refs before cleanup
     const peerInstance = peerRef.current;
     // console.log(peerInstance);
     const socketInstance = socketRef.current;
     // console.log(socketInstance);
-  
+
     return () => {
       if (peerInstance) {
         peerInstance.destroy();
@@ -194,8 +192,8 @@ function ChatRoom() {
       }
     };
   }, [roomID]); // Keep dependencies minimal
-  
-  
+
+
 
 leoProfanity.loadDictionary("en"); // Load English dictionary
 leoProfanity.add(leoProfanity.getDictionary('hi')); // Add Hindi bad words manually
@@ -259,14 +257,14 @@ const sendMessage = () => {
   }
 
   if (newMessage.trim()) {
-    const messageData = { 
-      roomID, 
-      username, 
-      message: newMessage, 
+    const messageData = {
+      roomID,
+      username,
+      message: newMessage,
       isAnonymous: isAnonymous ? "true" : "false"  // ✅ Store as string
     };
 
-    
+
     console.log(messageData);
     socketRef.current.emit("send_message", messageData);
     setMessages((prevMessages) => [...prevMessages, messageData]);
@@ -285,20 +283,20 @@ const sendMessage = () => {
       console.error("❌ Peer ID is not available yet. Waiting...");
       return;
     }
-  
+
       // Always get the latest ID
-  
+
     console.log("Using PeerID:", PeerID);
-  
+
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
       mediaStreamRef.current = stream;
       myVideoRef.current.srcObject = stream;
       myVideoRef.current.play();
-  
+
       socketRef.current.emit("request_call", { roomID, callerPeerID: PeerID });
-  
+
       console.log("Started calling...");
-  
+
       if (remotePeerID) {
         console.log("Calling:", remotePeerID);
         const call = peerRef.current.call(remotePeerID, stream);
@@ -309,7 +307,7 @@ const sendMessage = () => {
       }
     }).catch(err => console.error("❌ Error accessing media devices:", err));
   };
-   
+
 
 const endCall = () => {
   if (mediaStreamRef.current) {
@@ -471,7 +469,7 @@ const rejectCall = () => {
           >
           {isCalling ? <FaPhoneSlash /> : <FaPhone />} {isCalling ? "End Call" : "Start Call"}
           </button>
-          
+
           <button className="Anonymous" onClick={handleFeedback}>
               {isAnonymous ? "End FeedBack Chat" : "Start FeedBack Chat"}
           </button>
@@ -494,7 +492,7 @@ const rejectCall = () => {
             </div>
           )}
 
-      
+
 
 <div className="messages">
   {messages.map((msg, index) => (
@@ -518,7 +516,7 @@ const rejectCall = () => {
           value={newMessage}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          
+
         />
         <button onClick={sendMessage}>Send</button>
       </div>

@@ -3,9 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/ChatGallery.module.css";
 
+import { BACKEND_URI } from "../config";
 
-const HOST = window.location.hostname;
-const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
 
 function ChatGallery({ onSelectChat }) {
   const [chats, setChats] = useState([]);
@@ -33,10 +32,10 @@ function ChatGallery({ onSelectChat }) {
       const response = await axios.post(
         `http://${BACKEND_URI}/api/refresh-token`,
         { refreshToken,username }
-        
-        
+
+
       );
-  
+
       const newAccessToken = response.data.accessToken;
       localStorage.setItem("AccessToken", newAccessToken);
       return newAccessToken;
@@ -54,28 +53,28 @@ function ChatGallery({ onSelectChat }) {
         { username },
         { headers: { Authorization: `Bearer ${AccessToken}` } }
       );
-  
+
       let fetchedChats = Array.isArray(response.data.rooms) ? response.data.rooms : [];
-  
+
       // Sort chats: Most active first (messages count), then latest created first
       fetchedChats.sort((a, b) => {
         const activityA = a.messages?.length || 0;
         const activityB = b.messages?.length || 0;
-  
+
         if (activityA === activityB) {
           // If both have the same activity, sort by creation time (newest first)
           return new Date(b.createdAt) - new Date(a.createdAt);
         }
-        
+
         return activityB - activityA; // Sort by activity (desc)
       });
-  
+
       setChats(fetchedChats);
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-  
+
         if (status === 401) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
@@ -92,12 +91,12 @@ function ChatGallery({ onSelectChat }) {
       }
     }
   };
-  
+
 
   const CreateUniqueID = async () => {
     const uniqueID = Math.random().toString(36).substr(2, 9);
     setRoomID(uniqueID);
-  
+
     try {
       const AccessToken = localStorage.getItem("AccessToken");
       await axios.post(`http://${BACKEND_URI}/api/chat/create`, { roomID: uniqueID, username }, {
@@ -107,7 +106,7 @@ function ChatGallery({ onSelectChat }) {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-  
+
         if (status === 401) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
@@ -133,7 +132,7 @@ function ChatGallery({ onSelectChat }) {
       alert("Please enter a room ID to join.");
       return;
     }
-  
+
     try {
       const AccessToken = localStorage.getItem("AccessToken");
       await axios.post(
@@ -145,14 +144,14 @@ function ChatGallery({ onSelectChat }) {
           }
         }
       );
-  
+
       navigate(`/chat/${roomID}`);
       GetChats();
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
         const errorMessage = error.response.data;
-  
+
         if (status === 403) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
@@ -160,7 +159,7 @@ function ChatGallery({ onSelectChat }) {
         } else if (status === 401) {
           console.error("Unauthorized: Token expired or invalid");
           const newToken = await RefreshTokenFunction();
-          if (newToken) JoinRoom(); 
+          if (newToken) JoinRoom();
           else alert("Session expired. Please log in again.");
           // window.location.href = "/";
         } else {
@@ -172,7 +171,7 @@ function ChatGallery({ onSelectChat }) {
       }
     }
   };
-  
+
   const handleLogout = async () =>{
     localStorage.removeItem('username');
     localStorage.removeItem('RefreshToken');
@@ -225,7 +224,7 @@ function ChatGallery({ onSelectChat }) {
         <button className={styles.LogoutBtn} onClick={handleLogout}> Logout</button>
       </div>
     </div>
-    
+
   );
 }
 

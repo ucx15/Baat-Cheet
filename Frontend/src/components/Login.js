@@ -7,9 +7,7 @@ import { Icon } from "react-icons-kit";
 import { eyeOff } from "react-icons-kit/feather/eyeOff";
 import { eye } from "react-icons-kit/feather/eye";
 import "../styles/login.css";
-
-const HOST = window.location.hostname;
-const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
+import {BACKEND_URI} from "../config.js";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -33,14 +31,14 @@ function Login() {
         username,
         password,
       });
-      
+
       // setAccessToken(response.data.accessToken);
       // setRefreshToken(response.data.refreshToken);
 
       localStorage.setItem("AccessToken", response.data.accessToken);
       localStorage.setItem("RefreshToken", response.data.refreshToken);
 
-      
+
 
       localStorage.setItem("username", username);
       console.log("Stored Username:", localStorage.getItem("username")); // Debugging log
@@ -67,7 +65,7 @@ function Login() {
             animate={{ scale: 1.5, opacity: 0.4 }}
             transition={{ duration: 2 }}
           ></motion.div>
-  
+
           <motion.h1
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -76,7 +74,7 @@ function Login() {
           >
             Baat-Cheet
           </motion.h1>
-  
+
           {showSubtitle && (
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -89,7 +87,7 @@ function Login() {
           )}
         </div>
       )}
-  
+
       {/* Login Box */}
       {!showSplash && (
         <div className="login-page">
@@ -121,6 +119,6 @@ function Login() {
       )}
     </div>
   );
-} 
+}
 
 export default Login;

@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/signup.css";
+import { BACKEND_URI } from "../config";
 
-
-const HOST = window.location.hostname;
-const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
 
 function Signup() {
   const [username, setUsername] = useState("");
