@@ -230,6 +230,15 @@ const handleKeyDown = (e) => {
   }
 };
 
+const handleCall = () => {
+  if (isCalling) {
+    endCall();
+  } else {
+    startCall();
+  }
+  setIsCalling(!isCalling);
+};
+
 const handleFeedback = () => {
   if (!isAnonymous) {
     console.log("Starting Feedback Chat...");
@@ -456,12 +465,11 @@ const rejectCall = () => {
             Delete
           </button>
 
-          <button className="call-button" onClick={startCall}>
-              <FaPhone /> Start Call
-          </button>
-
-          <button className="end-call-button" onClick={endCall}>
-            <FaPhoneSlash /> End Call
+          <button
+            className={isCalling ? "end-call-button" : "call-button"}
+            onClick={handleCall}
+          >
+          {isCalling ? <FaPhoneSlash /> : <FaPhone />} {isCalling ? "End Call" : "Start Call"}
           </button>
           
           <button className="Anonymous" onClick={handleFeedback}>
