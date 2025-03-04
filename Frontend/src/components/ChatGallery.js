@@ -55,7 +55,22 @@ function ChatGallery({ onSelectChat }) {
         { headers: { Authorization: `Bearer ${AccessToken}` } }
       );
   
-      setChats(Array.isArray(response.data.rooms) ? response.data.rooms : []);
+      let fetchedChats = Array.isArray(response.data.rooms) ? response.data.rooms : [];
+  
+      // Sort chats: Most active first (messages count), then latest created first
+      fetchedChats.sort((a, b) => {
+        const activityA = a.messages?.length || 0;
+        const activityB = b.messages?.length || 0;
+  
+        if (activityA === activityB) {
+          // If both have the same activity, sort by creation time (newest first)
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        
+        return activityB - activityA; // Sort by activity (desc)
+      });
+  
+      setChats(fetchedChats);
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
@@ -64,13 +79,11 @@ function ChatGallery({ onSelectChat }) {
         if (status === 401) {
           console.error("Forbidden:", errorMessage);
           alert("Access Denied: " + errorMessage);
-          // window.location.href = "/";
         } else if (status === 403) {
           console.error("Unauthorized: Token expired or invalid");
           const newToken = await RefreshTokenFunction();
           if (newToken) GetChats(); // Retry after refreshing token
           else alert("Session expired. Please log in again.");
-          // window.location.href = "/";
         } else {
           console.error("Error fetching chats:", errorMessage);
         }
@@ -79,6 +92,7 @@ function ChatGallery({ onSelectChat }) {
       }
     }
   };
+  
 
   const CreateUniqueID = async () => {
     const uniqueID = Math.random().toString(36).substr(2, 9);

@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 import "../styles/ChatRoom.css";
 import { FaPhone, FaPhoneSlash } from "react-icons/fa"; 
 import Peer from "peerjs";
+
+import leoProfanity from "leo-profanity";
 
 const HOST = window.location.hostname;
 const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST; 
@@ -21,6 +23,7 @@ function ChatRoom() {
   const [editRoomId, seteditRoomId] = useState("");
   const [IsEditing, setIsEditing] = useState(false);
   const [roomName, setRoomName] = useState(initialRoomName);
+  const [isAnonymous,setIsAnonymous] = useState(false);
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
@@ -35,6 +38,9 @@ function ChatRoom() {
   const remoteVideoRef = useRef(null);
   const mediaStreamRef = useRef(null);
 
+ 
+
+
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
@@ -47,7 +53,19 @@ function ChatRoom() {
     setRoomName(queryParams.get("roomName") || "");
   }, [roomID]);
 
+  // useEffect(() => {
+  //   if (isAnonymous) {
+  //     const timer = setTimeout(() => {
+  //       setIsAnonymous(false);
+  //     }, 5 * 60 * 1000); // 5 minutes
+
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [isAnonymous]);
+  
+
   useEffect(() => {
+
     if (!socketRef.current) {
       socketRef.current = io(`http://${BACKEND_URI}`);
     }
@@ -178,15 +196,75 @@ function ChatRoom() {
   }, [roomID]); // Keep dependencies minimal
   
   
-  const sendMessage = () => {
-    if (newMessage.trim()) {
-      const messageData = { roomID, username, message: newMessage };
 
-      socketRef.current.emit("send_message", messageData);
-      setMessages((prevMessages) => [...prevMessages, messageData]);
-      setNewMessage("");
+leoProfanity.loadDictionary("en"); // Load English dictionary
+leoProfanity.add(leoProfanity.getDictionary('hi')); // Add Hindi bad words manually
+
+const handleInputChange = (e) => {
+  setNewMessage(e.target.value);
+};
+
+const handleKeyDown = (e) => {
+  if (e.key === " ") {
+    const words = newMessage.trim().split(" ");
+    const lastWord = words[words.length - 1]; // Get last typed word
+
+    if (leoProfanity.check(lastWord)) {
+      alert("🚫 Inappropriate word detected!");
+      words.pop(); // Remove the last word
+      setNewMessage(words.join(" ")); // Update the input field
+      e.preventDefault();
     }
-  };
+  }
+
+  if (e.key === "Enter") {
+    e.preventDefault(); // Prevent default enter behavior
+
+    // Final check before sending
+    if (leoProfanity.check(newMessage.trim())) {
+      alert("🚫 Your message contains inappropriate words!");
+      return;
+    }
+
+    sendMessage(); // Send message if clean
+  }
+};
+
+const handleFeedback = () => {
+  if (!isAnonymous) {
+    console.log("Starting Feedback Chat...");
+    alert("Started Feedback Chat");
+  } else {
+    console.log("Ending Feedback Chat...");
+    alert("Ending Feedback Chat");
+  }
+
+  setIsAnonymous((prev) => !prev);
+};
+
+
+const sendMessage = () => {
+  if (leoProfanity.check(newMessage.trim())) {
+    alert("🚫 Your message contains inappropriate words!");
+    return;
+  }
+
+  if (newMessage.trim()) {
+    const messageData = { 
+      roomID, 
+      username, 
+      message: newMessage, 
+      isAnonymous: isAnonymous ? "true" : "false"  // ✅ Store as string
+    };
+
+    
+    console.log(messageData);
+    socketRef.current.emit("send_message", messageData);
+    setMessages((prevMessages) => [...prevMessages, messageData]);
+    setNewMessage("");
+  }
+};
+
 
   const startCall = () => {
     console.log(peerRef.current);
@@ -258,7 +336,6 @@ const rejectCall = () => {
   console.log("❌ Call rejected");
   setIsCalling(false); // Hide the popup
 };
-
 
   const handleEditField = () => {
     setIsEditing(!IsEditing);
@@ -342,6 +419,9 @@ const rejectCall = () => {
     }
   };
 
+
+
+
   return (
     <div className="chat-room">
       <div className="room-header">
@@ -379,9 +459,15 @@ const rejectCall = () => {
           <button className="call-button" onClick={startCall}>
               <FaPhone /> Start Call
           </button>
+
           <button className="end-call-button" onClick={endCall}>
-                <FaPhoneSlash /> End Call
-            </button>
+            <FaPhoneSlash /> End Call
+          </button>
+          
+          <button className="Anonymous" onClick={handleFeedback}>
+              {isAnonymous ? "End FeedBack Chat" : "Start FeedBack Chat"}
+          </button>
+
         </div>
       </div>
 
@@ -393,34 +479,38 @@ const rejectCall = () => {
             </div>
 
             {isCalling && (
-  <div className="incoming-call-popup">
-    <p>📞 Incoming call from {remotePeerID}</p>
-    <button onClick={() => acceptCall(remotePeerID)}>Accept</button>
-    <button onClick={rejectCall}>Reject</button>
-  </div>
-)}
+              <div className="incoming-call-popup">
+              <p>📞 Incoming call from {remotePeerID}</p>
+              <button onClick={() => acceptCall(remotePeerID)}>Accept</button>
+              <button onClick={rejectCall}>Reject</button>
+            </div>
+          )}
 
-      <div className="messages">
-        {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>
-            <strong>{msg.username}:</strong> {msg.message}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
+      
+
+<div className="messages">
+  {messages.map((msg, index) => (
+    <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>
+      {msg.isAnonymous === "true" ? (  // ✅ Compare as a string
+        <>{msg.message}</>
+      ) : (
+        <>
+          <strong>{msg.username}:</strong> {msg.message}
+        </>
+      )}
+    </div>
+  ))}
+  <div ref={messagesEndRef} />
+</div>
 
       <div className="send-message">
         <input
           type="text"
           placeholder="Type your message"
           value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              sendMessage();
-            }
-          }}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          
         />
         <button onClick={sendMessage}>Send</button>
       </div>

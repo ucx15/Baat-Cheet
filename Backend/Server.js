@@ -62,9 +62,10 @@ io.on('connection', (socket) => {
 	});
 
 	// Send a message
-	socket.on('send_message', async ({ roomID, username, message }) => {
-		await RoomModel.addMessageToRoom(roomID, username, message);
-		socket.to(roomID).emit('receive_message', { username, message });
+	socket.on('send_message', async ({ roomID, username, message ,isAnonymous }) => {
+		console.log(roomID, username, message, isAnonymous);
+		await RoomModel.addMessageToRoom(roomID, username, message, isAnonymous);
+		socket.to(roomID).emit('receive_message', { username, message, isAnonymous});
 	});
 
 	socket.on("peer_id", ({ roomID, PeerID }) => {
