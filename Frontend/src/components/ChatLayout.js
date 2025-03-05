@@ -14,18 +14,20 @@ const ChatLayout = () => {
   };
 
   return (
+
     <div className="chat-layout">
+
       <button className="menu-btn" onClick={() => setIsOpen(!isOpen)}>
         ☰
       </button>
-      <div className="main-content">
+
         <div className={`left-panel ${isOpen ? "open" : ""}`}>
           <ChatGallery onSelectChat={handleChatSelect} />
         </div>
+
         <div className="right-panel">
           <ChatRoom chat={selectedChat} />
         </div>
-      </div>
 
     </div>
   );

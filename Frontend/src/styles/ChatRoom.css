@@ -1,12 +1,13 @@
 .chat-room {
-    padding: 1em;
+    padding: 0 1em;
     color: white;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 
+    width: 100%;
+    height: 100%;
     gap: 1em;
-    /* justify-content: space-between; */
   }
 
   .room-header {
@@ -61,21 +62,28 @@
     background-color: hsl(240, 20%, 8%);
     padding: 10px;
     border-radius: 8px;
+
     display: flex;
     flex-direction: column;
-    max-height: 74vh;
-    height: 74vh;
+    max-height: 76vh;
+    height: 76vh;
+
+    width: 100%;
   }
 
   .message {
     padding: 10px;
     margin: 5px 0;
+
     border-radius: 8px;
+
     transition: transform 0.2s ease;
-    max-width: 60%;
+    width: fit-content;
+
+    max-width: 60ch;
+
     word-wrap: break-word;
     overflow-wrap: break-word;
-    display: inline-block;
   }
 
   .my-message {
@@ -150,3 +158,8 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
+@media screen and (max-width: 768px) {
+  .message {
+    max-width: 90%;
+  }
+}

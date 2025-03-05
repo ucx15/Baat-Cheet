@@ -6,27 +6,21 @@
 
 .chat-layout {
   display: flex;
-  flex-direction: column;
-
-  height: 100vh;
+  /* max-width: 100vh; */
 }
 
-.main-content {
-  display: flex;
-  flex: 1;
-  /* min-height: 100vh; */
-  height: 100vh;
-}
 
 /* Left Panel (Chat Gallery) */
 .left-panel {
-  width: 20rem;
-  /* border-right: .1em solid #666; */
+  width: 30vw;
+  flex-shrink: 0;
   transition: transform 0.2s ease-in-out;
 }
 
 /* Right Panel (Chat Room) */
 .right-panel {
+  /* width: 70vw; */
+  /* width: 100%; */
   flex-grow: 1;
 }
 
@@ -64,6 +58,6 @@
   }
 
   .right-panel {
-    width: 100%;
+    max-width: 100%;
   }
 }
