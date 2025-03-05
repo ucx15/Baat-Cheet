@@ -27,14 +27,7 @@ function ChatRoom() {
 
   const navigate = useNavigate();
 
-  const [PeerID, setPeerID] = useState(null);
-  const [remotePeerID, setRemotePeerID] = useState(null);
-  const [isCalling, setIsCalling] = useState(false);
-
-  const peerRef = useRef(null);
-  const myVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const mediaStreamRef = useRef(null);
+ 
 
 
 
@@ -87,112 +80,151 @@ function ChatRoom() {
   }, [roomID]);
 
 
+  const [PeerID, setPeerID] = useState(null);
+  const [remotePeerID, setRemotePeerID] = useState(null);
+  const [isCalling, setIsCalling] = useState(false);
+  const [localStream, setLocalStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
+  
+  const peerRef = useRef(null);
+  const myVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+  
   useEffect(() => {
     if (!socketRef.current) {
       socketRef.current = io(`http://${BACKEND_URI}`);
     }
-
-    console.log(BACKEND_URI);
-
+      
+    // Initialize PeerJS
     peerRef.current = new Peer(undefined, {
-      host: "localhost",  // Change to your actual backend domain/IP
-      port: 9000,  // Use port 443 for HTTPS
-      path: "/",  // Ensure this matches the backend path
-      secure: false,  // Must be true for HTTPS
-      debug: 3,  // Enable debugging
+      host: `localhost`, // Use actual backend domain/IP instead of localhost
+      port: 9000, // Use 443 if deploying on HTTPS
+      path: "/",
+      secure: false, // Change to true if backend uses HTTPS
+      debug: 3,
       config: {
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" }, // Add a public STUN server
-        ],
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }], // Public STUN server
       },
     });
-
-
-    console.log("peerRef",peerRef.current);
-
-
+  
+    console.log("Peer Ref:", peerRef.current);
+  
     peerRef.current.on("open", (id) => {
       console.log("My Peer ID:", id);
-      setPeerID(id);  // Update state after Peer ID is available
+      setPeerID(id); // Save Peer ID in state
       socketRef.current.emit("peer_id", { roomID, PeerID: id });
     });
-
-
+  
     peerRef.current.on("error", (err) => {
       console.error("❌ Peer error:", err);
     });
-
-
-
-    peerRef.current.on("call", (call) => {
+  
+    // Handle Incoming Calls
+    peerRef.current.on("call", async (call) => {
       console.log("📞 Incoming call from:", call.peer);
-
-      // Prompt user to accept or reject the call
-      if (window.confirm(`Incoming call from ${call.peer}. Accept?`)) {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-          .then((stream) => {
-            mediaStreamRef.current = stream;
-
-            // Play local video
-            myVideoRef.current.srcObject = stream;
-            myVideoRef.current.play();
-
-            // Answer the call with our stream
-            call.answer(stream);
-
-            // Listen for the remote stream
-            call.on("stream", (remoteStream) => {
-              console.log("✅ Remote stream received!");
-              remoteVideoRef.current.srcObject = remoteStream;
-              remoteVideoRef.current.play();
-            });
-          })
-          .catch((error) => {
-            console.error("❌ Error accessing media devices:", error);
-          });
-      } else {
-        console.log("❌ Call rejected");
+  
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        mediaStreamRef.current = stream;
+        setLocalStream(stream);
+  
+        // Play local video
+        if (myVideoRef.current) {
+          myVideoRef.current.srcObject = stream;
+          myVideoRef.current.play();
+        }
+  
+        // Answer the call with our stream
+        call.answer(stream);
+  
+        // Listen for the remote stream
+        call.on("stream", (remoteStream) => {
+          console.log("✅ Remote stream received!");
+          setRemoteStream(remoteStream);
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = remoteStream;
+            remoteVideoRef.current.play();
+          }
+        });
+  
+        call.on("close", () => {
+          console.log("❌ Call ended.");
+          setRemoteStream(null);
+        });
+      } catch (error) {
+        console.error("❌ Error accessing media devices:", error);
       }
     });
-
-
-   socketRef.current.on("incoming_call", ({ callerPeerID }) => {
-  console.log("📞 Incoming call from:", callerPeerID);
-
-  // Store the caller ID and show UI buttons
-  setRemotePeerID(callerPeerID);
-  setIsCalling(true); // This will show a UI button
-});
-
-
-
-    socketRef.current.on("call_accepted", ({ PeerID }) => {
-  console.log("✅ Call accepted by:", PeerID);
-
-  // Establish a direct connection
-  const conn = peerRef.current.connect(PeerID);
-  conn.on("open", () => {
-    console.log("🔗 Connection opened with", PeerID);
-  });
-});
-
-
-    // Store current refs before cleanup
-    const peerInstance = peerRef.current;
-    // console.log(peerInstance);
-    const socketInstance = socketRef.current;
-    // console.log(socketInstance);
-
-    return () => {
-      if (peerInstance) {
-        peerInstance.destroy();
+  
+    // Handle Incoming Call Notification
+    socketRef.current.on("incoming_call", async ({ callerPeerID }) => {
+      console.log("📞 Incoming call from:", callerPeerID);
+  
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        console.log("🎥📢 Camera and Mic access granted");
+  
+        setRemotePeerID(callerPeerID);
+        setLocalStream(stream);
+        setIsCalling(true);
+      } catch (error) {
+        console.error("❌ Permission denied:", error);
+        alert("Camera and microphone permissions are required to answer the call.");
       }
-      if (socketInstance) {
-        socketInstance.disconnect();
+    });
+  
+    // Handle Call Acceptance
+    socketRef.current.on("call_accepted", ({ PeerID }) => {
+      console.log("✅ Call accepted by:", PeerID);
+  
+      if (!peerRef.current) {
+        console.error("⚠️ PeerJS instance not available.");
+        return;
+      }
+  
+      // Connect to the peer
+      const conn = peerRef.current.connect(PeerID);
+      conn.on("open", () => {
+        console.log("🔗 Connection established with", PeerID);
+      });
+  
+      // Start the call
+      if (localStream) {
+        const call = peerRef.current.call(PeerID, localStream);
+        call.on("stream", (remoteStream) => {
+          console.log("📡 Receiving remote stream...");
+          setRemoteStream(remoteStream);
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = remoteStream;
+            remoteVideoRef.current.play();
+          }
+        });
+  
+        call.on("close", () => {
+          console.log("❌ Call ended.");
+          setRemoteStream(null);
+        });
+      }
+    });
+  
+    // Cleanup on component unmount
+    return () => {
+      if (peerRef.current) {
+        peerRef.current.destroy();
+        peerRef.current = null;
+      }
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
       }
     };
-  }, [roomID]); // Keep dependencies minimal
-
+  }, []);
+  
 
 
 leoProfanity.loadDictionary("en"); // Load English dictionary
