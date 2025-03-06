@@ -6,6 +6,8 @@ import { FaEdit } from "react-icons/fa";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import "../styles/ChatRoom.css";
+import leoProfanity from "leo-profanity";
+
 
 const HOST = window.location.hostname;
 const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST;
@@ -23,9 +25,14 @@ function ChatRoom() {
   const [roomName, setRoomName] = useState(initialRoomName);
   const [file, setFile] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
+  const [isAnonymous,setIsAnonymous] = useState(false);
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
   const navigate = useNavigate();
+
+  leoProfanity.loadDictionary("en"); // Load English dictionary
+  leoProfanity.add(leoProfanity.getDictionary('hi')); // Add Hindi bad words manually
+
 
   useEffect(() => {
   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -76,9 +83,21 @@ function ChatRoom() {
   }, [roomID]);
 
   const sendMessage = () => {
-    if (newMessage.trim()) {
-      const messageData = { roomID, username, message: newMessage };
+    if (leoProfanity.check(newMessage.trim())) {
+      alert("🚫 Your message contains inappropriate words!");
+      return;
+    }
 
+    if (newMessage.trim()) {
+      const messageData = {
+        roomID,
+        username,
+        message: newMessage,
+        isAnonymous: isAnonymous ? "true" : "false"  // ✅ Store as string
+      };
+
+      
+      console.log(messageData);
       socketRef.current.emit("send_message", messageData);
       setMessages((prevMessages) => [...prevMessages, messageData]);
       setNewMessage("");
@@ -197,6 +216,67 @@ const sendFile = async () => {
   };
 };
 
+const handleInputChange = (e) => {
+  setNewMessage(e.target.value);
+};
+
+const handleKeyDown = (e) => {
+  if (e.key === " ") {
+    const words = newMessage.trim().split(" ");
+    const lastWord = words[words.length - 1]; // Get last typed word
+
+    if (leoProfanity.check(lastWord)) {
+      alert("🚫 Inappropriate word detected!");
+      words.pop(); // Remove the last word
+      setNewMessage(words.join(" ")); // Update the input field
+      e.preventDefault();
+    }
+  }
+
+  if (e.key === "Enter") {
+    e.preventDefault(); // Prevent default enter behavior
+
+    // Final check before sending
+    if (leoProfanity.check(newMessage.trim())) {
+      alert("🚫 Your message contains inappropriate words!");
+      return;
+    }
+
+    sendMessage(); // Send message if clean
+  }
+};
+
+const handleFeedback = () => {
+  if (!isAnonymous) {
+    console.log("Starting Feedback Chat...");
+    alert("Started Feedback Chat");
+    startFeedback();
+
+  } else {
+    console.log("Ending Feedback Chat...");
+    alert("Ending Feedback Chat");
+    endFeedback();
+  }
+
+  setIsAnonymous((prev) => !prev);
+};
+
+const startFeedback = () => {
+  setMessages(prevMessages => [
+    ...prevMessages,
+    { message: "Feedback session has started", isSystemMessage: true }
+  ]);
+};
+
+
+const endFeedback = () => {
+  setMessages(prevMessages => [
+    ...prevMessages,
+    { message: "Feedback session has ended", isSystemMessage: true }
+  ]);
+};
+
+
 
   return (
     <div className="chat-room">
@@ -231,21 +311,30 @@ const sendFile = async () => {
           <button className="delete-button" onClick={handleDeleteChat}>
             Delete
           </button>
+
+          <button className="Anonymous" onClick={handleFeedback}>
+            {isAnonymous ? "End FeedBack Chat" : "Start FeedBack Chat"}
+          </button>
+
         </div>
       </div>
 
+
       <div className="messages">
   {messages.map((msg, index) => (
-    <div key={index} className={`message ${msg.username === username ? "my-message" : "other-message"}`}>
-      <strong>{msg.username}:</strong>
-      {msg.file ? (
-        msg.type === "image" ? (
-          <img src={msg.file} alt="Sent File" style={{ maxWidth: "200px", borderRadius: "5px" }} />
-        ) : (
-          <a href={msg.file} download>📄 {msg.format.toUpperCase()} File</a>
-        )
+    <div
+      key={index}
+      className={`message ${msg.username === username ? "my-message" : "other-message"} ${msg.isAnonymous === "true" ? "anonymous-message" : ""}`}
+    >
+      {msg.isSystemMessage ? ( // Check if it's a system message
+        <strong className="system-message">{msg.message}</strong>
+      ) : msg.isAnonymous === "true" ? (  
+        <>
+        <strong>FeedBack: </strong>{msg.message}</>
       ) : (
-        msg.message
+        <>
+          <strong>{msg.username}:</strong> {msg.message}
+        </>
       )}
     </div>
   ))}
@@ -280,17 +369,8 @@ const sendFile = async () => {
     type="text"
     placeholder="Type your message or select a file"
     value={file ? file.name : newMessage} // Show file name if selected
-    onChange={(e) => setNewMessage(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        if (file) {
-          sendFile();
-        } else {
-          sendMessage();
-        }
-      }
-    }}
+    onChange={handleInputChange}
+    onKeyDown={handleKeyDown}
   />
 
   <input

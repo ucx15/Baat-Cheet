@@ -76,15 +76,10 @@ io.on('connection', (socket) => {
 	// TODO: send callback acknowledgements
 
 	// Send a message
-	socket.on('send_message', async ({ roomID, username, message }) => {
-		// Acknowledgement
-		// callback({ status: 'success' });
-
-		// Save the message to the database
-		await RoomModel.addMessageToRoom(roomID, username, message);
-
-		// Broadcast the message to everyone in the room
-		socket.to(roomID).emit('receive_message', { username, message });
+	socket.on('send_message', async ({ roomID, username, message ,isAnonymous }) => {
+		console.log(roomID, username, message, isAnonymous);
+		await RoomModel.addMessageToRoom(roomID, username, message, isAnonymous);
+		socket.to(roomID).emit('receive_message', { username, message, isAnonymous});
 	});
 
 	socket.on('send_file', async ({data, type, format, username, roomID}) => {

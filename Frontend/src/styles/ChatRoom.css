@@ -163,3 +163,21 @@
     max-width: 90%;
   }
 }
+
+.anonymous-message {
+  background-color: hsl(0, 0%, 0%); /* Light gray or any color of your choice */
+  color: #f7dede; /* Adjust text color for readability */
+  font-style: italic;
+}
+
+.system-message {
+  display: block;
+  text-align: center;
+  font-weight: bold;
+  color: white; /* White text */
+  background-color: #ff5722; /* Orange background */
+  padding: 8px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+

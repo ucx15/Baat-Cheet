@@ -12,6 +12,7 @@
     "axios": "^1.7.9",
     "bcryptjs": "^3.0.1",
     "framer-motion": "^12.4.7",
+    "leo-profanity": "^1.7.0",
     "lucide-react": "^0.476.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
