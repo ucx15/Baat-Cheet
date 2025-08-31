@@ -16,10 +16,10 @@ dotenv.config()
 const PORT = process.env.PORT;
 const HOST = process.env.HOST;
 const MONGO_URI = process.env.MONGO_URI;
+const WS_PATH = process.env.WS_PATH || '/socket.io';
 
 const CORS_CONFIG = {
 	origin: '*',
-	methods: ['GET', 'POST'],
 	credentials: true
 };
 
@@ -57,6 +57,7 @@ const io = new Server(
 	server,
 	{
 		cors: CORS_CONFIG,
+		path: WS_PATH,
 		maxHttpBufferSize: 1e8 // 100 MB
 	});
 

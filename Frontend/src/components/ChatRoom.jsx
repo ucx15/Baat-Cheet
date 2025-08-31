@@ -10,8 +10,7 @@ import leoProfanity from "leo-profanity";
 
 import "../styles/ChatRoom.css";
 
-import BACKEND_URI from "../config";
-
+import BACKEND_URI, {WS_PATH} from "../config";
 
 function ChatRoom() {
   const { roomID } = useParams();
@@ -53,7 +52,9 @@ function ChatRoom() {
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io(`${BACKEND_URI}`);
+      socketRef.current = io(`${BACKEND_URI}`, {
+        path: WS_PATH,
+      });
     }
 
     const socket = socketRef.current;
