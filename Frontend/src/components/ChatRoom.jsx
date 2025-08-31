@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import axios from "axios";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
-import Picker from "@emoji-mart/react";
-import data from "@emoji-mart/data";
-import "../styles/ChatRoom.css";
 import leoProfanity from "leo-profanity";
+
+// import Picker from "@emoji-mart/react";
+// import data from "@emoji-mart/data";
+
+import "../styles/ChatRoom.css";
 
 
 const HOST = window.location.hostname;
@@ -24,8 +27,7 @@ function ChatRoom() {
   const [IsEditing, setIsEditing] = useState(false);
   const [roomName, setRoomName] = useState(initialRoomName);
   const [file, setFile] = useState(null);
-  const [showPicker, setShowPicker] = useState(false);
-  const [isAnonymous,setIsAnonymous] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
   const navigate = useNavigate();
@@ -35,8 +37,8 @@ function ChatRoom() {
 
 
   useEffect(() => {
-  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-}, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
 
   useEffect(() => {
@@ -96,7 +98,7 @@ function ChatRoom() {
         isAnonymous: isAnonymous ? "true" : "false"  // ✅ Store as string
       };
 
-      
+
       console.log(messageData);
       socketRef.current.emit("send_message", messageData);
       setMessages((prevMessages) => [...prevMessages, messageData]);
@@ -161,7 +163,7 @@ function ChatRoom() {
     const AccessToken = localStorage.getItem("AccessToken");
     try {
       await axios.post(
-        `http://${BACKEND_URI}/api/chat/set-name` ,
+        `http://${BACKEND_URI}/api/chat/set-name`,
         { roomID, roomName: editRoomId },
         {
           headers: { Authorization: `Bearer ${AccessToken}` },
@@ -188,93 +190,93 @@ function ChatRoom() {
 
 
 
-const sendFile = async () => {
-  if (!file) return; // Ensure a file is selected
+  const sendFile = async () => {
+    if (!file) return; // Ensure a file is selected
 
-  const reader = new FileReader();
-  reader.readAsArrayBuffer(file);
-  reader.onload = async () => {
-    const binaryData = reader.result;
-    const fileType = file.type.split("/")[0];
-    const fileFormat = file.type.split("/")[1];
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+    reader.onload = async () => {
+      const binaryData = reader.result;
+      const fileType = file.type.split("/")[0];
+      const fileFormat = file.type.split("/")[1];
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { username, file: URL.createObjectURL(file), type: fileType, format: fileFormat }
-    ]);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { username, file: URL.createObjectURL(file), type: fileType, format: fileFormat }
+      ]);
 
-    const fileData = {
-      data: binaryData,
-      type: fileType,
-      format: fileFormat,
-      username: username,
-      roomID: roomID,
+      const fileData = {
+        data: binaryData,
+        type: fileType,
+        format: fileFormat,
+        username: username,
+        roomID: roomID,
+      };
+      console.log("File send");
+      socketRef.current.emit("send_file", fileData);
+      setFile(null);
     };
-    console.log("File send");
-    socketRef.current.emit("send_file", fileData);
-    setFile(null);
   };
-};
 
-const handleInputChange = (e) => {
-  setNewMessage(e.target.value);
-};
+  const handleInputChange = (e) => {
+    setNewMessage(e.target.value);
+  };
 
-const handleKeyDown = (e) => {
-  if (e.key === " ") {
-    const words = newMessage.trim().split(" ");
-    const lastWord = words[words.length - 1]; // Get last typed word
+  const handleKeyDown = (e) => {
+    if (e.key === " ") {
+      const words = newMessage.trim().split(" ");
+      const lastWord = words[words.length - 1]; // Get last typed word
 
-    if (leoProfanity.check(lastWord)) {
-      alert("🚫 Inappropriate word detected!");
-      words.pop(); // Remove the last word
-      setNewMessage(words.join(" ")); // Update the input field
-      e.preventDefault();
-    }
-  }
-
-  if (e.key === "Enter") {
-    e.preventDefault(); // Prevent default enter behavior
-
-    // Final check before sending
-    if (leoProfanity.check(newMessage.trim())) {
-      alert("🚫 Your message contains inappropriate words!");
-      return;
+      if (leoProfanity.check(lastWord)) {
+        alert("🚫 Inappropriate word detected!");
+        words.pop(); // Remove the last word
+        setNewMessage(words.join(" ")); // Update the input field
+        e.preventDefault();
+      }
     }
 
-    sendMessage(); // Send message if clean
-  }
-};
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent default enter behavior
 
-const handleFeedback = () => {
-  if (!isAnonymous) {
-    console.log("Starting Feedback Chat...");
-    alert("Started Feedback Chat");
-    startFeedback();
+      // Final check before sending
+      if (leoProfanity.check(newMessage.trim())) {
+        alert("🚫 Your message contains inappropriate words!");
+        return;
+      }
 
-  } else {
-    console.log("Ending Feedback Chat...");
-    alert("Ending Feedback Chat");
-    endFeedback();
-  }
+      sendMessage(); // Send message if clean
+    }
+  };
 
-  setIsAnonymous((prev) => !prev);
-};
+  const handleFeedback = () => {
+    if (!isAnonymous) {
+      console.log("Starting Feedback Chat...");
+      alert("Started Feedback Chat");
+      startFeedback();
 
-const startFeedback = () => {
-  setMessages(prevMessages => [
-    ...prevMessages,
-    { message: "Feedback session has started", isSystemMessage: true }
-  ]);
-};
+    } else {
+      console.log("Ending Feedback Chat...");
+      alert("Ending Feedback Chat");
+      endFeedback();
+    }
+
+    setIsAnonymous((prev) => !prev);
+  };
+
+  const startFeedback = () => {
+    setMessages(prevMessages => [
+      ...prevMessages,
+      { message: "Feedback session has started", isSystemMessage: true }
+    ]);
+  };
 
 
-const endFeedback = () => {
-  setMessages(prevMessages => [
-    ...prevMessages,
-    { message: "Feedback session has ended", isSystemMessage: true }
-  ]);
-};
+  const endFeedback = () => {
+    setMessages(prevMessages => [
+      ...prevMessages,
+      { message: "Feedback session has ended", isSystemMessage: true }
+    ]);
+  };
 
 
 
@@ -321,82 +323,61 @@ const endFeedback = () => {
 
 
       <div className="messages">
-  {messages.map((msg, index) => (
-    <div
-      key={index}
-      className={`message ${msg.username === username ? "my-message" : "other-message"} ${msg.isAnonymous === "true" ? "anonymous-message" : ""}`}
-    >
-      {msg.isSystemMessage ? ( // Check if it's a system message
-        <strong className="system-message">{msg.message}</strong>
-      ) : msg.isAnonymous === "true" ? (  
-        <>
-        <strong>FeedBack: </strong>{msg.message}</>
-      ) : (
-        <>
-          <strong>{msg.username}:</strong> {msg.message}
-        </>
-      )}
-    </div>
-  ))}
-  <div ref={messagesEndRef} />
-</div>
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`message ${msg.username === username ? "my-message" : "other-message"} ${msg.isAnonymous === "true" ? "anonymous-message" : ""}`}
+          >
+            {msg.isSystemMessage ? ( // Check if it's a system message
+              <strong className="system-message">{msg.message}</strong>
+            ) : msg.isAnonymous === "true" ? (
+              <>
+                <strong>FeedBack: </strong>{msg.message}</>
+            ) : (
+              <>
+                <strong>{msg.username}:</strong> {msg.message}
+              </>
+            )}
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
 
 
-    <div className="send-message">
+      <div className="send-message">
 
-    <div className="emoji">
-    <button onClick={() => setShowPicker(!showPicker)}>😀</button>
-    {showPicker && (
-      <div className="emoji-picker">
-        <Picker
-          data={data}
-          onEmojiSelect={(emoji) => {
-            setNewMessage((prev) => prev + emoji.native);
-            setShowPicker(false);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-            e.preventDefault();
-            sendMessage();
+        <input
+          type="text"
+          placeholder="Type your message or select a file"
+          value={file ? file.name : newMessage} // Show file name if selected
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+        />
+
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files[0])}
+          style={{ display: "none" }}
+          id="file-input" // ✅ Corrected ID
+        />
+
+        <button className="fileSendBtn" onClick={() => document.getElementById("file-input").click()}>
+          📂
+        </button>
+
+        <button
+          className="sendBtn"
+          onClick={() => {
+            if (file) {
+              sendFile();
+            } else {
+              sendMessage();
             }
           }}
-          />
+        >
+          Send
+        </button>
       </div>
-    )}
-  </div>
-
-  <input
-    type="text"
-    placeholder="Type your message or select a file"
-    value={file ? file.name : newMessage} // Show file name if selected
-    onChange={handleInputChange}
-    onKeyDown={handleKeyDown}
-  />
-
-  <input
-    type="file"
-    onChange={(e) => setFile(e.target.files[0])}
-    style={{ display: "none" }}
-    id="file-input" // ✅ Corrected ID
-  />
-
-  <button className="fileSendBtn" onClick={() => document.getElementById("file-input").click()}>
-    📂
-  </button>
-
-  <button
-  className="sendBtn"
-    onClick={() => {
-      if (file) {
-        sendFile();
-      } else {
-        sendMessage();
-      }
-    }}
-  >
-    Send
-  </button>
-    </div>
 
 
     </div>
