@@ -3,7 +3,6 @@ import io from "socket.io-client";
 import axios from "axios";
 
 import { useNavigate, useParams } from "react-router-dom";
-import { FaEdit } from "react-icons/fa";
 import leoProfanity from "leo-profanity";
 
 // import Picker from "@emoji-mart/react";
@@ -11,9 +10,8 @@ import leoProfanity from "leo-profanity";
 
 import "../styles/ChatRoom.css";
 
+import BACKEND_URI from "../config";
 
-const HOST = window.location.hostname;
-const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST;
 
 function ChatRoom() {
   const { roomID } = useParams();
@@ -55,7 +53,7 @@ function ChatRoom() {
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io(`http://${BACKEND_URI}`);
+      socketRef.current = io(`${BACKEND_URI}`);
     }
 
     const socket = socketRef.current;
@@ -113,7 +111,7 @@ function ChatRoom() {
   const RefreshTokenFunction = async () => {
     try {
       const refreshToken = localStorage.getItem("RefreshToken");
-      const response = await axios.post(`http://${BACKEND_URI}/api/refresh-token`, { refreshToken, username });
+      const response = await axios.post(`${BACKEND_URI}/api/refresh-token`, { refreshToken, username });
 
       const newAccessToken = response.data.accessToken;
       localStorage.setItem("AccessToken", newAccessToken);
@@ -129,7 +127,7 @@ function ChatRoom() {
       const AccessToken = localStorage.getItem("AccessToken");
       try {
         await axios.post(
-          `http://${BACKEND_URI}/api/chat/delete`,
+          `${BACKEND_URI}/api/chat/delete`,
           { roomID, username },
           {
             headers: { Authorization: `Bearer ${AccessToken}` },
@@ -163,7 +161,7 @@ function ChatRoom() {
     const AccessToken = localStorage.getItem("AccessToken");
     try {
       await axios.post(
-        `http://${BACKEND_URI}/api/chat/set-name`,
+        `${BACKEND_URI}/api/chat/set-name`,
         { roomID, roomName: editRoomId },
         {
           headers: { Authorization: `Bearer ${AccessToken}` },
@@ -306,7 +304,7 @@ function ChatRoom() {
             </>
           ) : (
             <button className="edit-button" onClick={handleEditField}>
-              <FaEdit />
+              ✏️
             </button>
           )}
 

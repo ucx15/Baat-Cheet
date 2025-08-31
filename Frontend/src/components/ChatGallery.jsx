@@ -5,8 +5,7 @@ import styles from "../styles/ChatGallery.module.css";
 import  ChatNavbar  from "./ChatNavbar";
 
 
-const HOST = window.location.hostname;
-const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST;
+import BACKEND_URI from "../config";
 
 function ChatGallery({ onSelectChat }) {
   const [chats, setChats] = useState([]);
@@ -32,7 +31,7 @@ function ChatGallery({ onSelectChat }) {
     try {
       const refreshToken = localStorage.getItem("RefreshToken"); // Retrieve fresh token
       const response = await axios.post(
-        `http://${BACKEND_URI}/api/refresh-token`,
+        `${BACKEND_URI}/api/refresh-token`,
         { refreshToken, username }
 
 
@@ -51,7 +50,7 @@ function ChatGallery({ onSelectChat }) {
     try {
       const AccessToken = localStorage.getItem("AccessToken");
       const response = await axios.post(
-        `http://${BACKEND_URI}/api/fetch-user-rooms`,
+        `${BACKEND_URI}/api/fetch-user-rooms`,
         { username },
         { headers: { Authorization: `Bearer ${AccessToken}` } }
       );
@@ -87,7 +86,7 @@ function ChatGallery({ onSelectChat }) {
 
     try {
       const AccessToken = localStorage.getItem("AccessToken");
-      await axios.post(`http://${BACKEND_URI}/api/chat/create`, { roomID: uniqueID, username }, {
+      await axios.post(`${BACKEND_URI}/api/chat/create`, { roomID: uniqueID, username }, {
         headers: { Authorization: `Bearer ${AccessToken}` }
       });
     } catch (error) {
@@ -124,7 +123,7 @@ function ChatGallery({ onSelectChat }) {
     try {
       const AccessToken = localStorage.getItem("AccessToken");
       await axios.post(
-        `http://${BACKEND_URI}/api/chat/join`,
+        `${BACKEND_URI}/api/chat/join`,
         { roomID, username },
         {
           headers: {

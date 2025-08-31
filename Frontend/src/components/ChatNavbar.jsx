@@ -5,7 +5,7 @@ function ChatNavbar() {
 
   return (
     <nav className="chat-navbar">
-      Baat Cheet
+      FlashChat
     </nav>
   );
 }

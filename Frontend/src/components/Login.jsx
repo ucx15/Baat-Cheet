@@ -6,8 +6,7 @@ import { Link } from "react-router-dom";
 
 import "../styles/login.css";
 
-const HOST = window.location.hostname;
-const BACKEND_URI = (HOST === "localhost") ? "localhost:3000" : HOST;
+import BACKEND_URI from "../config";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -23,7 +22,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`http://${BACKEND_URI}/api/login`, {
+      const response = await axios.post(`${BACKEND_URI}/api/login`, {
         username,
         password,
       });
